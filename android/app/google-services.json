@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1027065219417",
+    "project_id": "staj-bul-demo",
+    "storage_bucket": "staj-bul-demo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027065219417:android:74376e8a6cf4f200dfe448",
+        "android_client_info": {
+          "package_name": "com.example.staj_bul_demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb_0Kec9RQoWcDgvWjNnyOzW5aEtQXiD0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
