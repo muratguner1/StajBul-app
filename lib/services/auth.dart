@@ -89,12 +89,6 @@ class Auth {
     }
   }
 
-  /*Future<bool> isEmailRegistered(String email) async {
-    try {
-      final isExist = await _auth.
-    } catch (e) {}
-  } */
-
   Future<void> logout() async {
     await _auth.signOut();
   }

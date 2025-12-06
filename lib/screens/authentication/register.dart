@@ -1,4 +1,6 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
@@ -82,8 +84,16 @@ class _RegisterPageState extends State<RegisterPage> {
                             minHeight: screenH / 20,
                           ),
                           children: [
-                            Text('Öğrenci'),
-                            Text('Şirket'),
+                            Text(
+                              'Öğrenci',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Şirket',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         SizedBox(height: 20),
@@ -166,20 +176,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                               builder: (context) => LoginPage(),
                                             ),
                                           );
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Kayıt başarılı, lütfen giriş yapın.'),
-                                            ),
-                                          );
+                                          AwesomeSnackBar.show(context,
+                                              title: 'Kayıt Başarılı',
+                                              message:
+                                                  'Kayıt başarılı, lütfen giriş yapın.',
+                                              contentType: ContentType.success);
                                         } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text('Kayıt başarısız!'),
-                                            ),
-                                          );
+                                          AwesomeSnackBar.show(context,
+                                              title: 'Kayıt Başarısız!',
+                                              message:
+                                                  'Girdiğiniz e-posta başka bir kullanıcı tarafından kullanılıyor!',
+                                              contentType: ContentType.failure);
                                         }
                                       } catch (e) {
                                         ScaffoldMessenger.of(context)

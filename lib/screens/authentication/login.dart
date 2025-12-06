@@ -1,8 +1,10 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/reset_password.dart';
-import 'package:staj_bul_demo/screens/company_screens/company_home.dart';
 import 'package:staj_bul_demo/screens/authentication/register.dart';
-import 'package:staj_bul_demo/screens/student_screens/student_home.dart';
+import 'package:staj_bul_demo/screens/company_screens/company_menu.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_menu.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -117,51 +119,54 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              final emailInput = _emailController.text.trim();
+                              final passwordInput =
+                                  _passwordController.text.trim();
+
                               setState(() {
                                 loaded = false;
                               });
                               try {
                                 final user = await _auth.login(
-                                  _emailController.text.trim(),
-                                  _passwordController.text.trim(),
+                                  emailInput,
+                                  passwordInput,
                                 );
 
                                 if (user != null) {
+                                  _emailController.clear();
+                                  _passwordController.clear();
                                   if (user.role == 'student') {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => StudentHomePage(),
+                                        builder: (context) => StudentMenuPage(),
                                       ),
                                     );
                                   } else if (user.role == 'company') {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => CompanyHomePage(),
+                                        builder: (context) => CompanyMenuPage(),
                                       ),
                                     );
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Geçersiz kullanıcı!'),
-                                      ),
-                                    );
+                                    AwesomeSnackBar.show(context,
+                                        title: 'Başarısız!',
+                                        message: 'Geçersiz kullanıcı!',
+                                        contentType: ContentType.failure);
                                   }
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text('E-posta veya şifre hatalı!'),
-                                    ),
-                                  );
+                                  AwesomeSnackBar.show(context,
+                                      title: 'Başarısız!',
+                                      message: 'E-posta veya şifre hatalı!',
+                                      contentType: ContentType.failure);
                                 }
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Giriş başarısız: $e'),
-                                  ),
-                                );
+                                AwesomeSnackBar.show(context,
+                                    title: 'Başarısız!',
+                                    message:
+                                        'Giriş başarısız, lütfen şifre ve e-postayı doğru yazdığından emin ol!',
+                                    contentType: ContentType.failure);
                               }
 
                               setState(() {
@@ -204,7 +209,10 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             child: Text(
                               'Şifremi unuttum',
-                              style: TextStyle(color: Colors.deepPurple),
+                              style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                           )
                         ],

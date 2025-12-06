@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
-import 'package:staj_bul_demo/screens/student_screens/student_home.dart';
+import 'package:staj_bul_demo/screens/company_screens/company_menu.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_menu.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -17,9 +18,9 @@ class AuthWrapper extends StatelessWidget {
 
     switch (user.role) {
       case 'student':
-        return StudentHomePage();
+        return StudentMenuPage();
       case 'company':
-        return StudentHomePage(); // sonra düzelt unutma
+        return CompanyMenuPage();
       default:
         return LoginPage();
     }

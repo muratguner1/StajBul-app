@@ -43,6 +43,8 @@ dependencies:
   url_launcher: ^6.3.2
   cached_network_image: ^3.4.1
   provider: ^6.1.5+1
+  awesome_snackbar_content: ^0.1.6
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:

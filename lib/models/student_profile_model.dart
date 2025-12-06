@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StudentProfileModel {
   final String uid;
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final String university;
   final String department;
   final int startYear;
@@ -17,8 +16,7 @@ class StudentProfileModel {
 
   StudentProfileModel({
     required this.uid,
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.university,
     required this.department,
     required this.startYear,
@@ -35,8 +33,7 @@ class StudentProfileModel {
     var data = snap.data() as Map<String, dynamic>;
     return StudentProfileModel(
       uid: snap.id,
-      firstName: data['firstName'] ?? '',
-      lastName: data['lastName'] ?? '',
+      fullName: data['firstName'] ?? '',
       university: data['university'] ?? '',
       department: data['department'] ?? '',
       startYear: data['startYear'] ?? '',
@@ -52,8 +49,7 @@ class StudentProfileModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'firstName': firstName,
-      'lastName': lastName,
+      'firstName': fullName,
       'university': university,
       'department': department,
       'startYear': startYear,
