@@ -33,13 +33,13 @@ class StudentProfileModel {
     var data = snap.data() as Map<String, dynamic>;
     return StudentProfileModel(
       uid: snap.id,
-      fullName: data['firstName'] ?? '',
-      university: data['university'] ?? '',
-      department: data['department'] ?? '',
-      startYear: data['startYear'] ?? '',
-      graduationYear: data['graduationYear'],
-      profilePhotoUrl: data['profilePhotoUrl'],
-      aboutMe: data['aboutMe'],
+      fullName: data['firstName'] ?? '', //
+      university: data['university'] ?? '', //
+      department: data['department'] ?? '', //
+      startYear: data['startYear'] ?? '', //
+      graduationYear: data['graduationYear'], //
+      profilePhotoUrl: data['profilePhotoUrl'], //
+      aboutMe: data['aboutMe'], //
       skills: List<String>.from(data['skills'] ?? []),
       cvUrl: data['cvUrl'],
       isProfileComplete: data['isProfileComplete'] ?? false,

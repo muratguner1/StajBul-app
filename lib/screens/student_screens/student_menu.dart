@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_home.dart';
-import 'package:staj_bul_demo/screens/student_screens/student_profile.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/student_profile.dart';
 
 class StudentMenuPage extends StatefulWidget {
   const StudentMenuPage({super.key});
@@ -13,16 +13,23 @@ class StudentMenuPage extends StatefulWidget {
 class _StudentMenuPageState extends State<StudentMenuPage> {
   int _currentPage = 0;
 
-  final List<Widget> _pages = [
-    StudentHomePage(),
-    Text('Saved'),
-    Text('Applications'),
-    StudentProfilePage(),
-  ];
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      StudentHomePage(
+        onGoToProfile: () {
+          setState(() {
+            _currentPage = 3;
+          });
+        },
+      ),
+      Text('Saved'),
+      Text('Applications'),
+      StudentProfilePage(),
+    ];
+
     return Scaffold(
-      body: _pages[_currentPage],
+      body: pages[_currentPage],
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {

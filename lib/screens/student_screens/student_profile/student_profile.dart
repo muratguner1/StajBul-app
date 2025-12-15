@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:staj_bul_demo/screens/student_screens/student_settings.dart';
-import 'package:staj_bul_demo/widgets/student/profile_header.dart';
-import 'package:staj_bul_demo/widgets/student/tab_content.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/personal_info_tab.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/student_settings.dart';
+import 'package:staj_bul_demo/widgets/student/profile_page/profile_header.dart';
+import 'package:staj_bul_demo/widgets/student/profile_page/tab_content.dart';
 
 class StudentProfilePage extends StatefulWidget {
   const StudentProfilePage({super.key});
@@ -69,7 +70,6 @@ class _StudentProfilePageState extends State<StudentProfilePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profil'),
         actions: [
           IconButton(
             onPressed: _navigateToSettings,
@@ -93,8 +93,13 @@ class _StudentProfilePageState extends State<StudentProfilePage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children:
-                  _tabList.map((tab) => TabContent(title: tab.text!)).toList(),
+              children: [
+                const PersonalInfoTab(),
+                TabContent(title: 'Deneyimler'),
+                TabContent(title: 'Özgeçmiş'),
+                TabContent(title: 'Yetenekler & Diller'),
+                TabContent(title: 'İletişim Bilgileri'),
+              ],
             ),
           ),
         ],

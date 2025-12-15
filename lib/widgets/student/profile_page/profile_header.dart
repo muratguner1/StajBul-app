@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,7 +10,9 @@ import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ProfileHeader extends StatefulWidget {
   final String? currentProfileUrl;
-  const ProfileHeader({super.key, required this.currentProfileUrl});
+  final String? school;
+  const ProfileHeader(
+      {super.key, required this.currentProfileUrl, this.school});
 
   @override
   State<ProfileHeader> createState() => _ProfileHeaderState();
@@ -153,6 +156,49 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     );
   }
 
+  Widget _showUserInfo() {
+    final user = _auth.currentUser;
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('studentProfiles')
+          .doc(user!.uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Text('Profil bulunamadı!');
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              data['fullName'] ?? '',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              data['university'] ?? '',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ImageProvider profileImage;
@@ -161,11 +207,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       profileImage = FileImage(_selectedImage!);
     } else if (widget.currentProfileUrl != null &&
         widget.currentProfileUrl!.isNotEmpty) {
-      profileImage = NetworkImage(widget.currentProfileUrl!);
+      profileImage = CachedNetworkImageProvider(widget.currentProfileUrl!);
     } else if (_defaultPhotoUrl != null) {
-      profileImage = NetworkImage(_defaultPhotoUrl!);
+      profileImage = CachedNetworkImageProvider(_defaultPhotoUrl!);
     } else {
-      profileImage = NetworkImage('https://via.placeholder.com/150');
+      profileImage =
+          CachedNetworkImageProvider('https://via.placeholder.com/150');
     }
 
     return Padding(
@@ -246,25 +293,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ),
           ),
           SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Murat Güner',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'Boğaziçi Üniversitesi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _showUserInfo(),
         ],
       ),
     );

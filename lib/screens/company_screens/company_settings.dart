@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
 class CompanySettingsPage extends StatelessWidget {
@@ -15,6 +16,8 @@ class CompanySettingsPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               _auth.logout();
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginPage()));
             },
             child: Text('Log out'),
           ),
