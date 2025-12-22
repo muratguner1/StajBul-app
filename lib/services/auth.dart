@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
+import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/core/constants/user_roles.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -9,7 +11,10 @@ class Auth {
   Future<UserModel?> _userFromFirebase(User? user) async {
     if (user == null) return null;
 
-    final doc = await _firestore.collection('users').doc(user.uid).get();
+    final doc = await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(user.uid)
+        .get();
 
     if (!doc.exists) {
       return null;
@@ -49,21 +54,27 @@ class Auth {
       );
 
       await _firestore
-          .collection('users')
+          .collection(FirestoreCollections.users)
           .doc(user.uid)
           .set(userModel.toJson());
 
-      if (role == 'student') {
-        await _firestore.collection('studentProfiles').doc(user.uid).set({
-          'fullName': name,
+      if (role == UserRoles.student) {
+        await _firestore
+            .collection(FirestoreCollections.studentProfiles)
+            .doc(user.uid)
+            .set({
+          FirestoreFields.fullName: name,
           'createdAt': Timestamp.now(),
         });
-      } else {
-        await _firestore.collection('companyProfiles').doc(user.uid).set({
-          'fullName': name,
+      } else if (role == UserRoles.company) {
+        await _firestore
+            .collection(FirestoreCollections.companyProfiles)
+            .doc(user.uid)
+            .set({
+          FirestoreFields.fullName: name,
           'createdAt': Timestamp.now(),
         });
-      }
+      } //sonra admin için de ekleme yap
 
       return userModel;
     } catch (e) {
@@ -80,7 +91,7 @@ class Auth {
     return await _userFromFirebase(result.user);
   }
 
-  Future<void> resedPassword(String email) async {
+  Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } catch (e) {

@@ -95,7 +95,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                         loaded = true;
                                       });
                                       try {
-                                        await _auth.resedPassword(
+                                        await _auth.resetPassword(
                                             _emailController.text.trim());
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(

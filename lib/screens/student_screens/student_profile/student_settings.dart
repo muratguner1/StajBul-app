@@ -9,18 +9,18 @@ class StudentSettingsPage extends StatefulWidget {
   State<StudentSettingsPage> createState() => _StudentSettingsPageState();
 }
 
+final Auth auth = Auth();
+
 class _StudentSettingsPageState extends State<StudentSettingsPage> {
   @override
   Widget build(BuildContext context) {
-    final Auth _auth = Auth();
-
     return Scaffold(
       appBar: AppBar(),
       body: Column(
         children: [
           ElevatedButton(
             onPressed: () {
-              _auth.logout();
+              auth.logout();
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => LoginPage()));
             },

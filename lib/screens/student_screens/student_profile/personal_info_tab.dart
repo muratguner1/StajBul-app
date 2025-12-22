@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
@@ -15,8 +15,7 @@ class PersonalInfoTab extends StatefulWidget {
 
 class _PersonalInfoTabState extends State<PersonalInfoTab> {
   final _formKey = GlobalKey<FormState>();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final StudentProfileRepository _repository = StudentProfileRepository();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _universityController = TextEditingController();
@@ -39,22 +38,21 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
   }
 
   void _populateControllers(Map<String, dynamic> data) {
-    _nameController.text = data['fullName'] ?? '';
-    _universityController.text = data['university'] ?? '';
-    _startYearController.text = data['startYear'] ?? '';
-    _graduationYearController.text = data['graduationYear'] ?? '';
-    _departmentController.text = data['department'] ?? '';
-    _classController.text = data['class'] ?? '';
-    _aboutController.text = data['about'] ?? '';
+    _nameController.text = data[FirestoreFields.fullName] ?? '';
+    _universityController.text = data[FirestoreFields.university] ?? '';
+    _startYearController.text = data[FirestoreFields.startYear] ?? '';
+    _graduationYearController.text = data[FirestoreFields.graduationYear] ?? '';
+    _departmentController.text = data[FirestoreFields.department] ?? '';
+    _classController.text = data[FirestoreFields.studentClass] ?? '';
+    _aboutController.text = data[FirestoreFields.aboutMe] ?? '';
   }
 
   Future<void> _fetchUserData() async {
-    final user = _auth.currentUser;
+    final user = _repository.getCurrentUser();
 
     if (user != null) {
-      final doc =
-          await _firestore.collection('studentProfiles').doc(user.uid).get();
-      if (doc.exists && doc.data() != null) {
+      final doc = await _repository.getStudentProfile(user.uid);
+      if (doc != null && doc.exists && doc.data() != null) {
         final data = doc.data() as Map<String, dynamic>;
         backupData = data;
         _populateControllers(data);
@@ -68,23 +66,20 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
 
     setState(() => isLoading = true);
 
-    final user = _auth.currentUser;
+    final user = _repository.getCurrentUser();
 
     if (user != null) {
       try {
         final newData = {
-          'fullName': _nameController.text.trim(),
-          'university': _universityController.text.trim(),
-          'startYear': _startYearController.text.trim(),
-          'graduationYear': _graduationYearController.text.trim(),
-          'department': _departmentController.text.trim(),
-          'class': _classController.text.trim(),
-          'about': _aboutController.text.trim(),
+          FirestoreFields.fullName: _nameController.text.trim(),
+          FirestoreFields.university: _universityController.text.trim(),
+          FirestoreFields.startYear: _startYearController.text.trim(),
+          FirestoreFields.graduationYear: _graduationYearController.text.trim(),
+          FirestoreFields.department: _departmentController.text.trim(),
+          FirestoreFields.studentClass: _classController.text.trim(),
+          FirestoreFields.aboutMe: _aboutController.text.trim(),
         };
-        await _firestore
-            .collection('studentProfiles')
-            .doc(user.uid)
-            .set(newData, SetOptions(merge: true));
+        await _repository.updateStudentProfile(user.uid, newData);
 
         backupData = newData;
 
@@ -154,8 +149,9 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
         const SizedBox(height: 10),
         buildInfoRow(Icons.person, "Ad Soyad", _nameController.text),
         buildInfoRow(Icons.school, "Üniversite", _universityController.text),
-        buildInfoRow(Icons.school, "Başlangıç Yılı", _startYearController.text),
-        buildInfoRow(Icons.school, "Bitiş Yılı(Tahmini)",
+        buildInfoRow(
+            Icons.calendar_month, "Başlangıç Yılı", _startYearController.text),
+        buildInfoRow(Icons.calendar_month, "Bitiş Yılı(Tahmini)",
             _graduationYearController.text),
         buildInfoRow(Icons.book, "Bölüm", _departmentController.text),
         buildInfoRow(Icons.timeline, "Sınıf", _classController.text),

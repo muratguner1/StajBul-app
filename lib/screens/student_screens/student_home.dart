@@ -16,7 +16,7 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage> {
   // bunu sonra firestora ekleyip ordan çek
-  final double _completitionRate = 0.4;
+  final double _completionRate = 0.4;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
             children: [
               buildHeader('murat'),
               SizedBox(height: 20),
-              if (_completitionRate < 1.0)
+              if (_completionRate < 1.0)
                 buildProfileCompletionCard(
-                    context, _completitionRate, widget.onGoToProfile),
+                    context, _completionRate, widget.onGoToProfile),
               SizedBox(height: 20),
               buildSearchBar(),
               SizedBox(height: 24),

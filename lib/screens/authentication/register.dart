@@ -1,5 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/constants/user_roles.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
@@ -16,11 +17,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordVerifyController =
+      TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   bool loaded = true;
 
   int _selectedRoleIndex = 0;
-  final List<String> _roles = ['student', 'company'];
+  final List<String> _roles = [UserRoles.student, UserRoles.company];
   @override
   Widget build(BuildContext context) {
     final screenW = MediaQuery.of(context).size.width;
@@ -142,11 +145,36 @@ class _RegisterPageState extends State<RegisterPage> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Lütfen şifre gir!';
+                            } else if (value !=
+                                _passwordVerifyController.text) {
+                              return 'Her iki şifre aynı olmalı!';
                             }
                             return null;
                           },
                           decoration: InputDecoration(
                             labelText: 'Şifre',
+                            prefixIcon: Icon(Icons.lock),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          obscureText: true,
+                          controller: _passwordVerifyController,
+                          enabled: loaded,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Lütfen tekrar şifreyi gir!';
+                            } else if (value != _passwordController.text) {
+                              return 'Her iki şifre aynı olmalı!';
+                            }
+
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Şifreyi doğrula',
                             prefixIcon: Icon(Icons.lock),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),

@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ProfileHeader extends StatefulWidget {
@@ -23,28 +23,61 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   bool _isLoading = false;
 
   String? _defaultPhotoUrl;
+  String? _fullName;
+  String? _university;
+  bool _isLoadingUserInfo = true;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final StudentProfileRepository _repository = StudentProfileRepository();
 
   @override
   void initState() {
     super.initState();
     _fetchDefaultPhotoUrl();
+    _fetchUserInfo();
   }
 
   Future<void> _fetchDefaultPhotoUrl() async {
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('default').doc('1').get();
-      if (doc.exists && doc.data() != null) {
+      final url = await _repository.getDefaultPhotoUrl();
+      if (url != null) {
         setState(() {
-          _defaultPhotoUrl = doc['default_photo_url'];
+          _defaultPhotoUrl = url;
         });
       }
     } catch (e) {
       print("Varsayılan fotoğraf çekilemedi: $e");
+    }
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      setState(() {
+        _isLoadingUserInfo = false;
+      });
+      return;
+    }
+
+    try {
+      final doc = await _repository.getStudentProfile(user.uid);
+      if (doc != null && doc.exists && doc.data() != null) {
+        final data = doc.data() as Map<String, dynamic>;
+        setState(() {
+          _fullName = data[FirestoreFields.fullName] ?? '-';
+          _university = data[FirestoreFields.university] ?? '-';
+          _isLoadingUserInfo = false;
+        });
+      } else {
+        setState(() {
+          _isLoadingUserInfo = false;
+        });
+      }
+    } catch (e) {
+      print('Kullanıcı bilgileri çekilemedi: $e');
+      setState(() {
+        _isLoadingUserInfo = false;
+      });
     }
   }
 
@@ -59,11 +92,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       });
 
       try {
-        await _uploadToStorageAndSaveFirestore(File(image.path));
-        AwesomeSnackBar.show(context,
-            title: 'Başarılı',
-            message: 'Profil fotoğrafı güncellendi!',
-            contentType: ContentType.success);
+        final user = _auth.currentUser;
+        if (user != null) {
+          await _repository.uploadProfileImage(user.uid, File(image.path));
+          AwesomeSnackBar.show(context,
+              title: 'Başarılı',
+              message: 'Profil fotoğrafı güncellendi!',
+              contentType: ContentType.success);
+        }
       } catch (e) {
         AwesomeSnackBar.show(context,
             title: 'Başarısız!',
@@ -79,20 +115,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     }
   }
 
-  Future<void> _uploadToStorageAndSaveFirestore(File file) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    final ref = _storage.ref().child('student_images').child('${user.uid}.jpg');
-    await ref.putFile(file);
-    final url = await ref.getDownloadURL();
-
-    await _firestore
-        .collection('studentProfiles')
-        .doc(user.uid)
-        .update({'profileImageUrl': url});
-  }
-
   Future<void> _removePhoto() async {
     final user = _auth.currentUser;
     if (user == null) return;
@@ -102,9 +124,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     });
 
     try {
-      await _firestore.collection('studentProfiles').doc(user.uid).update({
-        'profileImageUrl': FieldValue.delete(),
-      });
+      await _repository.deleteProfileImage(user.uid);
 
       setState(() {
         _selectedImage = null;
@@ -112,10 +132,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
       AwesomeSnackBar.show(context,
           title: 'Başarılı',
-          message: 'Profil fotoğrafıı kaldırıldı.',
-          contentType: ContentType.failure);
+          message: 'Profil fotoğrafı kaldırıldı.',
+          contentType: ContentType.success);
     } catch (e) {
       print(e);
+      AwesomeSnackBar.show(context,
+          title: 'Başarısız!',
+          message: 'Profil fotoğrafı kaldırılamadı!',
+          contentType: ContentType.failure);
     } finally {
       setState(() {
         _isLoading = false;
@@ -157,45 +181,29 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   }
 
   Widget _showUserInfo() {
-    final user = _auth.currentUser;
+    if (_isLoadingUserInfo) {
+      return const CircularProgressIndicator();
+    }
 
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('studentProfiles')
-          .doc(user!.uid)
-          .get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Text('Profil bulunamadı!');
-        }
-
-        final data = snapshot.data!.data() as Map<String, dynamic>;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              data['fullName'] ?? '',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              data['university'] ?? '',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[700],
-              ),
-            ),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _fullName ?? '-',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          _university ?? '-',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[700],
+          ),
+        ),
+      ],
     );
   }
 

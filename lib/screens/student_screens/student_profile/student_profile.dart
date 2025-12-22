@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/experiences_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/personal_info_tab.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/resume_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_settings.dart';
 import 'package:staj_bul_demo/widgets/student/profile_page/profile_header.dart';
 import 'package:staj_bul_demo/widgets/student/profile_page/tab_content.dart';
@@ -15,8 +16,7 @@ class StudentProfilePage extends StatefulWidget {
 
 class _StudentProfilePageState extends State<StudentProfilePage>
     with SingleTickerProviderStateMixin {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final StudentProfileRepository _repository = StudentProfileRepository();
   String? _profileUrl;
 
   late TabController _tabController;
@@ -51,15 +51,13 @@ class _StudentProfilePageState extends State<StudentProfilePage>
   }
 
   Future<void> _setProfileUrl() async {
-    final user = _auth.currentUser;
-    if (user == null) return null;
+    final user = _repository.getCurrentUser();
+    if (user == null) return;
 
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('studentProfiles').doc(user.uid).get();
-
+      final url = await _repository.getProfileImageUrl(user.uid);
       setState(() {
-        _profileUrl = doc['profileImageUrl'];
+        _profileUrl = url;
       });
     } catch (e) {
       print('Hata: $e');
@@ -95,10 +93,12 @@ class _StudentProfilePageState extends State<StudentProfilePage>
               controller: _tabController,
               children: [
                 const PersonalInfoTab(),
-                TabContent(title: 'Deneyimler'),
-                TabContent(title: 'Özgeçmiş'),
+                ExperiencesTab(),
+                ResumeTab(),
                 TabContent(title: 'Yetenekler & Diller'),
-                TabContent(title: 'İletişim Bilgileri'),
+                TabContent(
+                    title:
+                        'İletişim Bilgileri'), // bu özel widget sonra silinecek.
               ],
             ),
           ),

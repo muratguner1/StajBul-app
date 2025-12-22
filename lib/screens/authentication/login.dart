@@ -1,5 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/constants/user_roles.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/reset_password.dart';
 import 'package:staj_bul_demo/screens/authentication/register.dart';
@@ -135,14 +136,14 @@ class _LoginPageState extends State<LoginPage> {
                                 if (user != null) {
                                   _emailController.clear();
                                   _passwordController.clear();
-                                  if (user.role == 'student') {
+                                  if (user.role == UserRoles.student) {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => StudentMenuPage(),
                                       ),
                                     );
-                                  } else if (user.role == 'company') {
+                                  } else if (user.role == UserRoles.company) {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(

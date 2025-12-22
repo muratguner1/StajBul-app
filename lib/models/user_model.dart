@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:staj_bul_demo/core/constants/user_roles.dart';
 
 class UserModel {
   final String uid;
@@ -18,7 +19,7 @@ class UserModel {
     return UserModel(
       uid: snap.id,
       email: data['email'] ?? '',
-      role: data['role'] ?? 'student',
+      role: data['role'] ?? UserRoles.student,
       createdAt: data['createdAt'] ?? Timestamp.now(),
     );
   }
