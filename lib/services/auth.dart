@@ -63,7 +63,7 @@ class Auth {
             .collection(FirestoreCollections.studentProfiles)
             .doc(user.uid)
             .set({
-          FirestoreFields.fullName: name,
+          FirestoreStudentFields.fullName: name,
           'createdAt': Timestamp.now(),
         });
       } else if (role == UserRoles.company) {
@@ -71,7 +71,7 @@ class Auth {
             .collection(FirestoreCollections.companyProfiles)
             .doc(user.uid)
             .set({
-          FirestoreFields.fullName: name,
+          FirestoreStudentFields.fullName: name,
           'createdAt': Timestamp.now(),
         });
       } //sonra admin için de ekleme yap

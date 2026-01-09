@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +19,7 @@ class ResumeTab extends StatefulWidget {
 
 class _ResumeTabState extends State<ResumeTab> {
   final StudentProfileRepository _repository = StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
   bool isUploading = false;
 
   Future<void> _pickAndUploadCV(int currentCount) async {
@@ -76,7 +78,7 @@ class _ResumeTabState extends State<ResumeTab> {
 
   Future<void> _uploadToStorage(File file, String customName) async {
     setState(() => isUploading = true);
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     try {
@@ -102,7 +104,7 @@ class _ResumeTabState extends State<ResumeTab> {
   Future<void> _deleteResume(Map<String, dynamic> resumeItem) async {
     setState(() => isUploading = true);
 
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
 
     if (user == null) return;
 
@@ -130,10 +132,10 @@ class _ResumeTabState extends State<ResumeTab> {
 
   @override
   Widget build(BuildContext context) {
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
 
     return StreamBuilder<DocumentSnapshot>(
-      stream: _repository.getStudentProfileStream(user!.uid),
+      stream: _commonRepository.getStudentProfileStream(user!.uid),
       builder: (context, snapshot) {
         if (snapshot.hasError) return const Text('Hata oluştu');
         if (snapshot.connectionState == ConnectionState.waiting) {

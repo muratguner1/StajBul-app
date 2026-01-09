@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -15,6 +16,7 @@ class ExperiencesTab extends StatefulWidget {
 
 class _ExperiencesTabState extends State<ExperiencesTab> {
   final StudentProfileRepository _repository = StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _companyController = TextEditingController();
@@ -48,7 +50,7 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
           contentType: ContentType.failure);
     }
 
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     setState(() => isLoading = true);
@@ -85,7 +87,7 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
   }
 
   Future<void> _deleteExperience(String docId) async {
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     _repository.deleteExperience(user.uid, docId);
@@ -234,7 +236,7 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
 
   @override
   Widget build(BuildContext context) {
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showExperienceForm(),

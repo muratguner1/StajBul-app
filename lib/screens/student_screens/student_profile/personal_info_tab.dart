@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/models/student_profile_model.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -16,6 +17,8 @@ class PersonalInfoTab extends StatefulWidget {
 class _PersonalInfoTabState extends State<PersonalInfoTab> {
   final _formKey = GlobalKey<FormState>();
   final StudentProfileRepository _repository = StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
+  StudentProfileModel? _profile;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _universityController = TextEditingController();
@@ -37,53 +40,68 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
     _fetchUserData();
   }
 
-  void _populateControllers(Map<String, dynamic> data) {
-    _nameController.text = data[FirestoreFields.fullName] ?? '';
-    _universityController.text = data[FirestoreFields.university] ?? '';
-    _startYearController.text = data[FirestoreFields.startYear] ?? '';
-    _graduationYearController.text = data[FirestoreFields.graduationYear] ?? '';
-    _departmentController.text = data[FirestoreFields.department] ?? '';
-    _classController.text = data[FirestoreFields.studentClass] ?? '';
-    _aboutController.text = data[FirestoreFields.aboutMe] ?? '';
+  void _populateControllers(StudentProfileModel model) {
+    _nameController.text = model.fullName;
+    _universityController.text = model.university ?? '';
+    _startYearController.text = model.startYear ?? '';
+    _graduationYearController.text = model.graduationYear ?? '';
+    _departmentController.text = model.department ?? '';
+    _classController.text = model.studentClass ?? '';
+    _aboutController.text = model.aboutMe ?? '';
   }
 
   Future<void> _fetchUserData() async {
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
 
     if (user != null) {
-      final doc = await _repository.getStudentProfile(user.uid);
-      if (doc != null && doc.exists && doc.data() != null) {
-        final data = doc.data() as Map<String, dynamic>;
-        backupData = data;
-        _populateControllers(data);
+      final model = await _commonRepository.getStudentProfileModel(user.uid);
+      if (mounted) {
+        setState(() {
+          if (model != null) {
+            _profile = model;
+            _populateControllers(model);
+          } else {
+            print('Kullanıcı profili veritabanında bulunamadı.');
+          }
+          isLoading = false;
+        });
       }
     }
+
     if (mounted) setState(() => isLoading = false);
   }
 
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_profile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text("Profil verileri yüklenemediği için işlem yapılamıyor.")));
+      return;
+    }
+
     setState(() => isLoading = true);
 
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
 
     if (user != null) {
       try {
-        final newData = {
-          FirestoreFields.fullName: _nameController.text.trim(),
-          FirestoreFields.university: _universityController.text.trim(),
-          FirestoreFields.startYear: _startYearController.text.trim(),
-          FirestoreFields.graduationYear: _graduationYearController.text.trim(),
-          FirestoreFields.department: _departmentController.text.trim(),
-          FirestoreFields.studentClass: _classController.text.trim(),
-          FirestoreFields.aboutMe: _aboutController.text.trim(),
-        };
-        await _repository.updateStudentProfile(user.uid, newData);
+        final updatedProfile = _profile!.copyWith(
+          uid: user.uid,
+          fullName: _nameController.text.trim(),
+          university: _universityController.text.trim(),
+          startYear: _startYearController.text.trim(),
+          graduationYear: _graduationYearController.text.trim(),
+          department: _departmentController.text.trim(),
+          studentClass: _classController.text.trim(),
+          aboutMe: _aboutController.text.trim(),
+        );
 
-        backupData = newData;
+        await _commonRepository.updateStudentProfile(updatedProfile);
 
         setState(() {
+          _profile = updatedProfile;
           isEditing = false;
         });
 
@@ -110,6 +128,11 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
         child: CircularProgressIndicator(),
       );
     }
+
+    if (_profile == null) {
+      return const Center(child: Text("Kullanıcı bilgileri yüklenemedi."));
+    }
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(16),
       child: isEditing ? _buildEditMode() : _buildViewMode(),
@@ -192,7 +215,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
                 icon: const Icon(Icons.close, color: Colors.grey),
                 onPressed: () {
                   setState(() {
-                    _populateControllers(backupData);
+                    if (_profile != null) _populateControllers(_profile!);
                     isEditing = false;
                   });
                 },
@@ -240,7 +263,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
                 child: OutlinedButton(
                   onPressed: () {
                     setState(() {
-                      _populateControllers(backupData);
+                      if (_profile != null) _populateControllers(_profile!);
                       isEditing = false;
                     });
                   },

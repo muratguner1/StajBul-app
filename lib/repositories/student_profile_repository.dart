@@ -4,77 +4,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 
 class StudentProfileRepository {
+  final CommonRepository _commonRepository = CommonRepository();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  User? getCurrentUser() {
-    return _auth.currentUser;
-  }
-
-  /// Öğrenci profil bilgilerini getirir
-  Future<DocumentSnapshot?> getStudentProfile(String userId) async {
-    try {
-      final doc = await _firestore
-          .collection(FirestoreCollections.studentProfiles)
-          .doc(userId)
-          .get();
-
-      if (doc.exists) {
-        return doc;
-      }
-      return null;
-    } catch (e) {
-      print('Profil çekme hatası: $e');
-      rethrow;
-    }
-  }
-
-  /// Öğrenci profil bilgilerini stream olarak getirir (canlı güncelleme için)
-  Stream<DocumentSnapshot> getStudentProfileStream(String userId) {
-    return _firestore
-        .collection(FirestoreCollections.studentProfiles)
-        .doc(userId)
-        .snapshots();
-  }
-
-  /// Öğrenci profil bilgilerini StudentProfileModel olarak getirir
-  Future<StudentProfileModel?> getStudentProfileModel(String userId) async {
-    try {
-      final doc = await getStudentProfile(userId);
-      if (doc != null && doc.exists) {
-        return StudentProfileModel.fromSnapshot(doc);
-      }
-      return null;
-    } catch (e) {
-      print('Profil model çekme hatası: $e');
-      return null;
-    }
-  }
-
-  /// Öğrenci profil bilgilerini günceller
-  Future<void> updateStudentProfile(
-      String userId, Map<String, dynamic> data) async {
-    try {
-      await _firestore
-          .collection(FirestoreCollections.studentProfiles)
-          .doc(userId)
-          .set(data, SetOptions(merge: true));
-    } catch (e) {
-      print('Profil güncelleme hatası: $e');
-      rethrow;
-    }
-  }
-
-  /// Sadece profil fotoğrafı URL'sini getirir
+  // Sadece profil fotoğrafı URL'sini getirir
   Future<String?> getProfileImageUrl(String userId) async {
     try {
-      final doc = await getStudentProfile(userId);
+      final doc = await _commonRepository.getStudentProfile(userId);
       if (doc != null && doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
-        return data[FirestoreFields.profileImageUrl];
+        return data[FirestoreStudentFields.profileImageUrl];
       }
       return null;
     } catch (e) {
@@ -83,7 +27,7 @@ class StudentProfileRepository {
     }
   }
 
-  /// Profil fotoğrafını Firebase Storage'a yükler ve URL'ini Firestore'a kaydeder
+  // Profil fotoğrafını Firebase Storage'a yükler ve URL'ini Firestore'a kaydeder
   Future<String> uploadProfileImage(String userId, File imageFile) async {
     try {
       // Storage'a yükle
@@ -95,7 +39,7 @@ class StudentProfileRepository {
       await _firestore
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
-          .update({FirestoreFields.profileImageUrl: downloadUrl});
+          .update({FirestoreStudentFields.profileImageUrl: downloadUrl});
 
       return downloadUrl;
     } catch (e) {
@@ -104,14 +48,14 @@ class StudentProfileRepository {
     }
   }
 
-  /// Profil fotoğrafını siler (sadece Firestore'dan, Storage'dan silmez)
+  // Profil fotoğrafını siler (sadece Firestore'dan, Storage'dan silmez)
   Future<void> deleteProfileImage(String userId) async {
     try {
       await _firestore
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        FirestoreFields.profileImageUrl: FieldValue.delete(),
+        FirestoreStudentFields.profileImageUrl: FieldValue.delete(),
       });
     } catch (e) {
       print('Profil fotoğrafı silme hatası: $e');
@@ -119,7 +63,7 @@ class StudentProfileRepository {
     }
   }
 
-  /// Varsayılan profil fotoğrafı URL'sini getirir
+  // Varsayılan profil fotoğrafı URL'sini getirir
   Future<String?> getDefaultPhotoUrl() async {
     try {
       final doc = await _firestore
@@ -138,7 +82,7 @@ class StudentProfileRepository {
     }
   }
 
-  ///Experiences Tab
+  //Experiences Tab
   //İç koleksiyon erişimi
   CollectionReference<Map<String, dynamic>> getInnerCollection(
       String userId, String collection) {
@@ -167,7 +111,7 @@ class StudentProfileRepository {
         .snapshots();
   }
 
-  ///Resume Tab
+  //Resume Tab
   Future<void> uploadResume(
       String userId, String fileName, File file, String resumeName) async {
     final ref = _storage.ref().child('resumes').child(userId).child(fileName);
@@ -202,5 +146,23 @@ class StudentProfileRepository {
         .update({
       'resumes': FieldValue.arrayRemove([resumeItem])
     });
+  }
+
+  //Skills & Languages Tab
+
+  Future<void> updateSkillsAndLanguages(
+      String userId, List<String> skills, List<String> languages) async {
+    try {
+      await _firestore
+          .collection(FirestoreCollections.studentProfiles)
+          .doc(userId)
+          .update({
+        'skills': skills,
+        'languages': languages,
+      });
+    } catch (e) {
+      print("Güncelleme hatası: $e");
+      rethrow;
+    }
   }
 }

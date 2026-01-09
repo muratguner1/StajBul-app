@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 
@@ -29,6 +30,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final StudentProfileRepository _repository = StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
 
   @override
   void initState() {
@@ -60,12 +62,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     }
 
     try {
-      final doc = await _repository.getStudentProfile(user.uid);
+      final doc = await _commonRepository.getStudentProfile(user.uid);
       if (doc != null && doc.exists && doc.data() != null) {
         final data = doc.data() as Map<String, dynamic>;
         setState(() {
-          _fullName = data[FirestoreFields.fullName] ?? '-';
-          _university = data[FirestoreFields.university] ?? '-';
+          _fullName = data[FirestoreStudentFields.fullName] ?? '-';
+          _university = data[FirestoreStudentFields.university] ?? '-';
           _isLoadingUserInfo = false;
         });
       } else {

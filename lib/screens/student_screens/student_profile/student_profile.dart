@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/contact_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/experiences_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/personal_info_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/resume_tab.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_profile/skills_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_settings.dart';
 import 'package:staj_bul_demo/widgets/student/profile_page/profile_header.dart';
-import 'package:staj_bul_demo/widgets/student/profile_page/tab_content.dart';
 
 class StudentProfilePage extends StatefulWidget {
   const StudentProfilePage({super.key});
@@ -17,6 +19,7 @@ class StudentProfilePage extends StatefulWidget {
 class _StudentProfilePageState extends State<StudentProfilePage>
     with SingleTickerProviderStateMixin {
   final StudentProfileRepository _repository = StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
   String? _profileUrl;
 
   late TabController _tabController;
@@ -51,7 +54,7 @@ class _StudentProfilePageState extends State<StudentProfilePage>
   }
 
   Future<void> _setProfileUrl() async {
-    final user = _repository.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     try {
@@ -95,10 +98,8 @@ class _StudentProfilePageState extends State<StudentProfilePage>
                 const PersonalInfoTab(),
                 ExperiencesTab(),
                 ResumeTab(),
-                TabContent(title: 'Yetenekler & Diller'),
-                TabContent(
-                    title:
-                        'İletişim Bilgileri'), // bu özel widget sonra silinecek.
+                SkillsTab(),
+                ContactTab(),
               ],
             ),
           ),

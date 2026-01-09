@@ -1,21 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 
 class CompanyProfileModel {
   final String uid;
   final String companyName;
   final String? logoUrl;
-  final String location;
+  final String? location;
   final String? website;
-  final String industry;
+  final String? industry;
   final String? aboutCompany;
 
   CompanyProfileModel({
     required this.uid,
     required this.companyName,
     this.logoUrl,
-    required this.location,
+    this.location,
     this.website,
-    required this.industry,
+    this.industry,
     this.aboutCompany,
   });
 
@@ -23,12 +24,12 @@ class CompanyProfileModel {
     var data = snap.data() as Map<String, dynamic>;
     return CompanyProfileModel(
       uid: snap.id,
-      companyName: data['companyName'] ?? '',
-      logoUrl: data['logoUrl'],
-      location: data['location'] ?? '',
-      website: data['website'],
-      industry: data['industry'] ?? '',
-      aboutCompany: data['aboutCompany'],
+      companyName: data[FirestoreCompanyFields.companyName] ?? '',
+      logoUrl: data[FirestoreCompanyFields.logoUrl],
+      location: data[FirestoreCompanyFields.address] ?? '',
+      website: data[FirestoreCompanyFields.website],
+      industry: data[FirestoreCompanyFields.industry] ?? '',
+      aboutCompany: data[FirestoreCompanyFields.aboutCompany],
     );
   }
 

@@ -8,7 +8,7 @@ class FirestoreCollections {
   static const String experiences = 'experiences';
 }
 
-class FirestoreFields {
+class FirestoreStudentFields {
   static const String fullName = 'fullName';
   static const String university = 'university';
   static const String studentClass = 'class';
@@ -21,4 +21,34 @@ class FirestoreFields {
   static const String cvUrl = 'cvUrl';
   static const String isProfileComplete = 'isProfileComplete';
   static const String savedListingIds = 'savedListingIds';
+}
+
+class FirestoreCompanyFields {
+  static const String companyName = 'companyName';
+  static const String logoUrl = 'logoUrl';
+  static const String address = 'address';
+  static const String website = 'website';
+  static const String industry = 'industry';
+  static const String aboutCompany = 'aboutCompany';
+}
+
+class FirestoreUserFields {
+  static const String email = 'email';
+  static const String role = 'role';
+  static const String createdAt = 'createdAt';
+
+  static const String phone = 'phone';
+  static const String linkedin = 'linkedin';
+  static const String github = 'github';
+  static const String address = 'address';
+}
+
+class FireStoreExperienceFields {
+  static const String company = 'company';
+  static const String position = 'position';
+  static const String description = 'description';
+  static const String startDate = 'startDate';
+  static const String endDate = 'endDate';
+  static const String isCurrent = 'isCurrent';
+  static const String createdAt = 'createdAt';
 }
