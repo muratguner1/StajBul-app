@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/models/experience_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile/experience_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class ExperiencesTab extends StatefulWidget {
   const ExperiencesTab({super.key});
@@ -15,7 +14,7 @@ class ExperiencesTab extends StatefulWidget {
 }
 
 class _ExperiencesTabState extends State<ExperiencesTab> {
-  final StudentProfileRepository _repository = StudentProfileRepository();
+  final ExperienceRepository _experienceRepository = ExperienceRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
   final _formKey = GlobalKey<FormState>();
@@ -27,6 +26,7 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
   DateTime? _endDate;
   bool _isCurrentlyWorking = false;
   bool isLoading = false;
+  String? _dateError;
 
   void _resetForm() {
     _companyController.clear();
@@ -37,18 +37,36 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
       _startDate = null;
       _endDate = null;
       _isCurrentlyWorking = false;
+      _dateError = null;
     });
+  }
+
+  bool _validateDates() {
+    if (_isCurrentlyWorking) {
+      setState(() => _dateError = null);
+      return true;
+    }
+
+    if (_startDate != null && _endDate != null) {
+      if (_endDate!.isBefore(_startDate!)) {
+        setState(() => _dateError = 'Bitiş tarihi başlangıçtan önce olamaz.');
+        return false;
+      }
+    }
+
+    setState(() => _dateError = null);
+    return true;
   }
 
   Future<void> _saveExperience({String? docId}) async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_startDate == null) {
-      AwesomeSnackBar.show(context,
-          title: '',
-          message: "Başlangıç tarihi seçmelisiniz.",
-          contentType: ContentType.failure);
+      setState(() => _dateError = "Başlangıç tarihi seçmelisiniz.");
+      return;
     }
+
+    if (!_validateDates()) return;
 
     final user = _commonRepository.getCurrentUser();
     if (user == null) return;
@@ -56,54 +74,104 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
     setState(() => isLoading = true);
 
     try {
-      final data = {
-        'company': _companyController.text.trim(),
-        'position': _positionController.text.trim(),
-        'description': _descriptionController.text.trim(),
-        'startDate': Timestamp.fromDate(_startDate!),
-        'endDate': _isCurrentlyWorking
-            ? null
-            : (_endDate != null ? Timestamp.fromDate(_endDate!) : null),
-        'isCurrent': _isCurrentlyWorking,
-        'createdAt': FieldValue.serverTimestamp(),
-      };
+      final experience = ExperienceModel(
+          id: docId ?? '',
+          company: _companyController.text.trim(),
+          position: _positionController.text.trim(),
+          description: _descriptionController.text.trim(),
+          startDate: _startDate!,
+          endDate: _isCurrentlyWorking ? null : _endDate,
+          isCurrent: _isCurrentlyWorking);
 
-      final collectionRef = _repository.getInnerCollection(
-          user.uid, FirestoreCollections.experiences);
+      await _experienceRepository.saveExperience(user.uid, experience);
 
-      if (docId == null) {
-        await collectionRef.add(data);
-      } else {
-        await collectionRef.doc(docId).update(data);
+      if (mounted) {
+        Navigator.pop(context);
+        _resetForm();
       }
 
-      Navigator.pop(context);
-      _resetForm();
+      AwesomeSnackBar.show(
+        context,
+        title: 'Başarılı',
+        message: 'Deneyim kaydedildi.',
+        contentType: ContentType.success,
+      );
     } catch (e) {
-      print('Hata: $e');
+      if (mounted) {
+        AwesomeSnackBar.show(context,
+            title: 'Hata',
+            message: "Kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.",
+            contentType: ContentType.failure);
+      }
     } finally {
       setState(() => isLoading = false);
     }
   }
 
   Future<void> _deleteExperience(String docId) async {
-    final user = _commonRepository.getCurrentUser();
-    if (user == null) return;
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Deneyimi Sil',
+          style: TextStyle(
+              color: Colors.blue, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: const Text('Bu deneyimi silmek istediğinize emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'İptal',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Sil',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
 
-    _repository.deleteExperience(user.uid, docId);
+    if (confirm != true) return;
+
+    try {
+      final user = _commonRepository.getCurrentUser();
+      if (user == null) return;
+
+      await _experienceRepository.deleteExperience(user.uid, docId);
+
+      if (mounted) {
+        AwesomeSnackBar.show(
+          context,
+          title: 'Başarılı',
+          message: 'Deneyim silindi.',
+          contentType: ContentType.success,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AwesomeSnackBar.show(context,
+            title: 'Hata',
+            message: "Silinirken bir sorun oluştu. Lütfen tekrar deneyin.",
+            contentType: ContentType.failure);
+      }
+    }
   }
 
-  void _showExperienceForm({DocumentSnapshot? doc}) {
-    if (doc != null) {
-      final data = doc.data() as Map<String, dynamic>;
-      _companyController.text = data['company'];
-      _positionController.text = data['position'];
-      _descriptionController.text = data['description'] ?? '';
-      _startDate = (data['startDate'] as Timestamp).toDate();
-      _endDate = data['endDate'] != null
-          ? (data['endDate'] as Timestamp).toDate()
-          : null;
-      _isCurrentlyWorking = data['isCurrent'] ?? false;
+  void _showExperienceForm({ExperienceModel? experience}) {
+    if (experience != null) {
+      _companyController.text = experience.company;
+      _positionController.text = experience.position;
+      _descriptionController.text = experience.description;
+      _startDate = experience.startDate;
+      _endDate = experience.endDate;
+      _isCurrentlyWorking = experience.isCurrent;
+      _dateError = null;
     } else {
       _resetForm();
     }
@@ -125,9 +193,10 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    doc == null ? 'Deneyim Ekle' : 'Deneyimi Düzenle',
+                    experience == null ? 'Deneyim Ekle' : 'Deneyimi Düzenle',
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
@@ -149,6 +218,14 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                       Expanded(
                         child: TextButton.icon(
                           icon: const Icon(Icons.calendar_today),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.grey.shade50,
+                            alignment: Alignment.centerLeft,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.grey.shade400)),
+                          ),
                           onPressed: () async {
                             final picked = await showDatePicker(
                               context: context,
@@ -157,7 +234,9 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                               lastDate: DateTime.now(),
                             );
                             if (picked != null) {
-                              setModalState(() => _startDate = picked);
+                              _startDate = picked;
+                              _validateDates();
+                              setModalState(() {});
                             }
                           },
                           label: Text(
@@ -170,42 +249,84 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _isCurrentlyWorking
-                            ? const Center(
-                                child: Text('Devam Ediyor',
-                                    style: TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold)))
+                            ? Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                        color: Colors.green.shade200)),
+                                child: const Center(
+                                    child: Text('Devam Ediyor',
+                                        style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold))))
                             : TextButton.icon(
                                 icon: const Icon(Icons.calendar_today_outlined),
+                                style: TextButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: Colors.grey.shade50,
+                                  alignment: Alignment.centerLeft,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade400)),
+                                ),
                                 onPressed: () async {
                                   final picked = await showDatePicker(
                                     context: context,
-                                    initialDate: DateTime.now(),
+                                    initialDate: _endDate ?? DateTime.now(),
                                     firstDate: DateTime(2000),
                                     lastDate: DateTime.now(),
                                   );
                                   if (picked != null) {
-                                    setModalState(() => _endDate = picked);
+                                    _endDate = picked;
+                                    _validateDates();
+                                    setModalState(() {});
                                   }
                                 },
                                 label: Text(
                                   _endDate == null
                                       ? 'Bitiş'
                                       : DateFormat('MM/yyyy').format(_endDate!),
+                                  style: TextStyle(
+                                      color: _endDate == null
+                                          ? Colors.grey.shade600
+                                          : Colors.black87),
                                 ),
                               ),
                       ),
                     ],
                   ),
+                  if (_dateError != null) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(left: 4),
+                      child: Text(
+                        _dateError!,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
                   CheckboxListTile(
                     title: const Text('Bu görevde hala çalışıyorum'),
                     value: _isCurrentlyWorking,
                     onChanged: (val) {
                       setModalState(() {
                         _isCurrentlyWorking = val!;
+                        if (_isCurrentlyWorking) {
+                          _endDate = null;
+                          _dateError = null;
+                        }
+                        setModalState(() {});
                       });
                     },
                     contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
                   ),
                   TextField(
                     controller: _descriptionController,
@@ -217,11 +338,11 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () => _saveExperience(docId: doc?.id),
+                      onPressed: () => _saveExperience(docId: experience?.id),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
                           foregroundColor: Colors.white),
-                      child: Text(doc == null ? 'Ekle' : 'Güncelle'),
+                      child: Text(experience == null ? 'Ekle' : 'Güncelle'),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -237,14 +358,16 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
   @override
   Widget build(BuildContext context) {
     final user = _commonRepository.getCurrentUser();
+    if (user == null) return const Center(child: CircularProgressIndicator());
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showExperienceForm(),
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _repository.getAllExperiences(user!.uid),
+      body: StreamBuilder<List<ExperienceModel>>(
+        stream: _experienceRepository.getAllExperiences(user.uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Bir hata oluştu'));
@@ -256,8 +379,8 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
             );
           }
 
-          final docs = snapshot.data!.docs;
-          if (docs.isEmpty) {
+          final experiences = snapshot.data ?? [];
+          if (experiences.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -278,19 +401,12 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
           }
           return ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: docs.length,
+              itemCount: experiences.length,
               itemBuilder: (context, index) {
-                final data = docs[index].data() as Map<String, dynamic>;
-                final docId = docs[index].id;
+                final experience = experiences[index];
 
-                final start = (data['startDate'] as Timestamp).toDate();
-                final end = data['endDate'] != null
-                    ? (data['endDate'] as Timestamp).toDate()
-                    : null;
-                final isCurrent = data['isCurrent'] ?? false;
-
-                final dateSrt =
-                    '${DateFormat('MM/yyyy').format(start)} - ${isCurrent ? 'Devam' : (end != null ? DateFormat('MM/yyyy').format(end) : '?')}';
+                final dateStr =
+                    '${DateFormat('MM/yyyy').format(experience.startDate)} - ${experience.isCurrent ? 'Devam' : (experience.endDate != null ? DateFormat('MM/yyyy').format(experience.endDate!) : '?')}';
 
                 return Card(
                   elevation: 2,
@@ -321,20 +437,20 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    data['position'],
+                                    experience.position,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),
                                   Text(
-                                    data['company'],
+                                    experience.company,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.black87),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    dateSrt,
+                                    dateStr,
                                     style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey.shade600),
@@ -349,9 +465,11 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                               ),
                               onSelected: (value) {
                                 if (value == 'edit') {
-                                  _showExperienceForm(doc: docs[index]);
+                                  _showExperienceForm(experience: experience);
                                 }
-                                if (value == 'delete') _deleteExperience(docId);
+                                if (value == 'delete') {
+                                  _deleteExperience(experience.id);
+                                }
                               },
                               itemBuilder: (context) => [
                                 const PopupMenuItem(
@@ -382,11 +500,10 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
                             ),
                           ],
                         ),
-                        if (data['description'] != null &&
-                            data['description'].toString().isNotEmpty) ...[
+                        if (experience.description.isNotEmpty) ...[
                           const Divider(height: 20),
                           Text(
-                            data['description'],
+                            experience.description,
                             style: TextStyle(
                                 color: Colors.grey.shade700, fontSize: 13),
                           ),

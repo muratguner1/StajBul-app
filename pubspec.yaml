@@ -43,9 +43,12 @@ dependencies:
   url_launcher: ^6.3.2
   cached_network_image: ^3.4.1
   provider: ^6.1.5+1
-  awesome_snackbar_content: ^0.1.6
+  awesome_snackbar_content: ^0.1.8
   lucide_icons: ^0.257.0
-  intl: ^0.19.0
+  intl: 0.20.2
+  logger: ^2.6.2
+  firebase_crashlytics: ^5.0.6
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +71,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/images/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

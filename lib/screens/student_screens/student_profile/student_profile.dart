@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile/header_repository.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/contact_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/experiences_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/personal_info_tab.dart';
@@ -18,9 +19,14 @@ class StudentProfilePage extends StatefulWidget {
 
 class _StudentProfilePageState extends State<StudentProfilePage>
     with SingleTickerProviderStateMixin {
-  final StudentProfileRepository _repository = StudentProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
+  final HeaderRepository _headerRepository = HeaderRepository();
+
   String? _profileUrl;
+  String? _defaultPhotoUrl;
+  String? _fullName;
+  String? _university;
+  bool _isLoadingHeader = true;
 
   late TabController _tabController;
   final List<Tab> _tabList = [
@@ -35,7 +41,7 @@ class _StudentProfilePageState extends State<StudentProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabList.length, vsync: this);
-    _setProfileUrl();
+    _loadHeaderData();
   }
 
   @override
@@ -53,17 +59,36 @@ class _StudentProfilePageState extends State<StudentProfilePage>
     );
   }
 
-  Future<void> _setProfileUrl() async {
+  Future<void> _loadHeaderData() async {
     final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     try {
-      final url = await _repository.getProfileImageUrl(user.uid);
+      final profileUrl = await _headerRepository.getProfileImageUrl(user.uid);
+      final defaultPhotoUrl = await _headerRepository.getDefaultPhotoUrl();
+
+      final doc = await _commonRepository.getStudentProfile(user.uid);
+
+      String? fullName;
+      String? university;
+
+      if (doc != null && doc.exists && doc.data() != null) {
+        final data = doc.data() as Map<String, dynamic>;
+        fullName = data[FirestoreStudentFields.fullName];
+        university = data[FirestoreStudentFields.university];
+      }
+
       setState(() {
-        _profileUrl = url;
+        _profileUrl = profileUrl;
+        _defaultPhotoUrl = defaultPhotoUrl;
+        _fullName = fullName;
+        _university = university;
+        _isLoadingHeader = false;
       });
     } catch (e) {
-      print('Hata: $e');
+      setState(() {
+        _isLoadingHeader = false;
+      });
     }
   }
 
@@ -81,7 +106,11 @@ class _StudentProfilePageState extends State<StudentProfilePage>
       body: Column(
         children: [
           ProfileHeader(
-            currentProfileUrl: _profileUrl,
+            profileUrl: _profileUrl,
+            defaultPhotoUrl: _defaultPhotoUrl,
+            fullName: _fullName,
+            university: _university,
+            isLoading: _isLoadingHeader,
           ),
           TabBar(
             controller: _tabController,

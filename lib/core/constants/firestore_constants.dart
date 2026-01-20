@@ -4,7 +4,7 @@ class FirestoreCollections {
   static const String listings = 'listings';
   static const String applications = 'applications';
   static const String users = 'users';
-  static const String defaultProfile = 'defaultProfile';
+  static const String defaultProfile = 'default';
   static const String experiences = 'experiences';
 }
 

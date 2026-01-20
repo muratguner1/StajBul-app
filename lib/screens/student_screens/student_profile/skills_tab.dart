@@ -1,7 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile/skills_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class SkillsTab extends StatefulWidget {
@@ -12,7 +12,7 @@ class SkillsTab extends StatefulWidget {
 }
 
 class _SkillsTabState extends State<SkillsTab> {
-  final StudentProfileRepository _repository = StudentProfileRepository();
+  final SkillsRepository _skillsRepository = SkillsRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
   List<String> _skills = [];
@@ -56,7 +56,7 @@ class _SkillsTabState extends State<SkillsTab> {
     final user = _commonRepository.getCurrentUser();
     if (user != null) {
       try {
-        await _repository.updateSkillsAndLanguages(
+        await _skillsRepository.updateSkillsAndLanguages(
             user.uid, _skills, _languages);
 
         setState(() => _isEditing = false);

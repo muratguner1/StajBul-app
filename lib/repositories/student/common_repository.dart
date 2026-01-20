@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 
 class CommonRepository {
@@ -8,10 +9,12 @@ class CommonRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? getCurrentUser() {
+    LogService.info('Getting current user');
     return _auth.currentUser;
   }
 
   Future<DocumentSnapshot?> getStudentProfile(String userId) async {
+    LogService.info('Getting student profile for $userId.');
     try {
       final doc = await _firestore
           .collection(FirestoreCollections.studentProfiles)
@@ -22,8 +25,9 @@ class CommonRepository {
         return doc;
       }
       return null;
-    } catch (e) {
-      print('Profil çekme hatası: $e');
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An error occured when getting student profile!', e, stackTrace);
       rethrow;
     }
   }
@@ -35,20 +39,23 @@ class CommonRepository {
         return StudentProfileModel.fromSnapshot(doc);
       }
       return null;
-    } catch (e) {
-      print('Profil model çekme hatası: $e');
-      return null;
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An error occured when getting student profile!', e, stackTrace);
+      rethrow;
     }
   }
 
   Future<void> updateStudentProfile(StudentProfileModel model) async {
+    LogService.info("Updating ${model.fullName}'s profile ");
     try {
       await _firestore
           .collection(FirestoreCollections.studentProfiles)
           .doc(model.uid)
           .update(model.toJson());
-    } catch (e) {
-      print('Hata: e');
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An error occured when updating student profile!', e, stackTrace);
       rethrow;
     }
   }
@@ -61,6 +68,7 @@ class CommonRepository {
         .collection(collection);
   }
 
+  //şuanda kullanılmıyor
   Stream<DocumentSnapshot> getStudentProfileStream(String userId) {
     return _firestore
         .collection(FirestoreCollections.studentProfiles)

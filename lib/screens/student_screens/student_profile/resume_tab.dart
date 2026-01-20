@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile/resume_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,7 +18,7 @@ class ResumeTab extends StatefulWidget {
 }
 
 class _ResumeTabState extends State<ResumeTab> {
-  final StudentProfileRepository _repository = StudentProfileRepository();
+  final ResumeRepository _resumeRepository = ResumeRepository();
   final CommonRepository _commonRepository = CommonRepository();
   bool isUploading = false;
 
@@ -84,7 +84,7 @@ class _ResumeTabState extends State<ResumeTab> {
     try {
       String fileName = "${DateTime.now().millisecondsSinceEpoch}.pdf";
 
-      _repository.uploadResume(user.uid, fileName, file, customName);
+      _resumeRepository.uploadResume(user.uid, fileName, file, customName);
 
       if (!mounted) return;
       AwesomeSnackBar.show(context,
@@ -109,7 +109,7 @@ class _ResumeTabState extends State<ResumeTab> {
     if (user == null) return;
 
     try {
-      _repository.deleteResume(resumeItem, user.uid);
+      _resumeRepository.deleteResume(resumeItem, user.uid);
     } catch (e) {
       AwesomeSnackBar.show(context,
           title: '',

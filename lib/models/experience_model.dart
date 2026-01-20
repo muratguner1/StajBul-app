@@ -32,7 +32,7 @@ class ExperienceModel {
         endDate: data[FireStoreExperienceFields.endDate] != null
             ? (data[FireStoreExperienceFields.endDate] as Timestamp).toDate()
             : null,
-        isCurrent: data[FireStoreExperienceFields.isCurrent] ?? '');
+        isCurrent: data[FireStoreExperienceFields.isCurrent] ?? false);
   }
 
   Map<String, dynamic> toJson() {

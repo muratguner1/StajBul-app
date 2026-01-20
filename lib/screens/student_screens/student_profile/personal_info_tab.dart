@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student_profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
@@ -16,7 +15,6 @@ class PersonalInfoTab extends StatefulWidget {
 
 class _PersonalInfoTabState extends State<PersonalInfoTab> {
   final _formKey = GlobalKey<FormState>();
-  final StudentProfileRepository _repository = StudentProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
   StudentProfileModel? _profile;
 
@@ -51,33 +49,46 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
   }
 
   Future<void> _fetchUserData() async {
-    final user = _commonRepository.getCurrentUser();
+    try {
+      final user = _commonRepository.getCurrentUser();
 
-    if (user != null) {
-      final model = await _commonRepository.getStudentProfileModel(user.uid);
+      if (user != null) {
+        final model = await _commonRepository.getStudentProfileModel(user.uid);
+        if (mounted) {
+          setState(() {
+            if (model != null) {
+              _profile = model;
+              _populateControllers(model);
+            } else {
+              AwesomeSnackBar.show(context,
+                  title: 'Hata',
+                  message: 'Kullanıcı profili bulunamadı!',
+                  contentType: ContentType.failure);
+            }
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
       if (mounted) {
-        setState(() {
-          if (model != null) {
-            _profile = model;
-            _populateControllers(model);
-          } else {
-            print('Kullanıcı profili veritabanında bulunamadı.');
-          }
-          isLoading = false;
-        });
+        AwesomeSnackBar.show(context,
+            title: 'Hata',
+            message: 'Kullanıcı bilgileri alınırken hata oluştu!',
+            contentType: ContentType.failure);
       }
     }
 
-    if (mounted) setState(() => isLoading = false);
+    //if (mounted) setState(() => isLoading = false);
   }
 
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_profile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content:
-              Text("Profil verileri yüklenemediği için işlem yapılamıyor.")));
+      AwesomeSnackBar.show(context,
+          title: '',
+          message: 'Profil verileri yüklenemediği için işlem yapılamıyor.',
+          contentType: ContentType.failure);
       return;
     }
 
@@ -112,7 +123,13 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
               contentType: ContentType.success);
         }
       } catch (e) {
-        print('Hata: $e');
+        if (mounted) {
+          AwesomeSnackBar.show(context,
+              title: 'Hata',
+              message:
+                  'Bilgiler kaydedilirken bir sorun oluştu! Lütfen tekrar deneyin.',
+              contentType: ContentType.failure);
+        }
       } finally {
         setState(() {
           setState(() => isLoading = false);

@@ -13,9 +13,12 @@ class StudentMenuPage extends StatefulWidget {
 class _StudentMenuPageState extends State<StudentMenuPage> {
   int _currentPage = 0;
 
+  late final List<Widget> _pages;
+
   @override
-  Widget build(BuildContext context) {
-    final List<Widget> pages = [
+  void initState() {
+    super.initState();
+    _pages = [
       StudentHomePage(
         onGoToProfile: () {
           setState(() {
@@ -23,13 +26,19 @@ class _StudentMenuPageState extends State<StudentMenuPage> {
           });
         },
       ),
-      Text('Saved'),
-      Text('Applications'),
-      StudentProfilePage(),
+      const Text('Saved'),
+      const Text('Applications'),
+      const StudentProfilePage(),
     ];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[_currentPage],
+      body: IndexedStack(
+        index: _currentPage,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
