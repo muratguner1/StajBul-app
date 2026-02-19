@@ -1,5 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student/profile/skills_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
@@ -44,8 +45,9 @@ class _SkillsTabState extends State<SkillsTab> {
             _languages = List<String>.from(data['languages'] ?? []);
           });
         }
-      } catch (e) {
-        print("Hata: $e");
+      } catch (e, stackTrace) {
+        LogService.error(
+            'An error occured when fetching user data', e, stackTrace);
       }
     }
     if (mounted) setState(() => _isLoading = false);

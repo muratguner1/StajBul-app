@@ -92,6 +92,7 @@ class _ResumeTabState extends State<ResumeTab> {
           message: 'CV başarıyla yüklendi',
           contentType: ContentType.success);
     } catch (e) {
+      if (!mounted) return;
       AwesomeSnackBar.show(context,
           title: '',
           message: 'Yükleme hatası',
@@ -111,6 +112,7 @@ class _ResumeTabState extends State<ResumeTab> {
     try {
       _resumeRepository.deleteResume(resumeItem, user.uid);
     } catch (e) {
+      if (!mounted) return;
       AwesomeSnackBar.show(context,
           title: '',
           message: 'Silinirken hata oluştu!',
@@ -123,6 +125,7 @@ class _ResumeTabState extends State<ResumeTab> {
   Future<void> _openResume(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
       AwesomeSnackBar.show(context,
           title: '',
           message: 'PDF açılamadı',

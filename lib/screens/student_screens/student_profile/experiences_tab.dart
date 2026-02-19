@@ -104,7 +104,9 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
             contentType: ContentType.failure);
       }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 

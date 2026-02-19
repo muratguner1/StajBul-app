@@ -78,7 +78,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
       }
     }
 
-    //if (mounted) setState(() => isLoading = false);
+    if (mounted) setState(() => isLoading = false);
   }
 
   Future<void> _saveUserData() async {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:staj_bul_demo/firebase_options.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
-import 'package:staj_bul_demo/screens/authentication/auth_wrapper.dart';
+import 'package:staj_bul_demo/screens/splash_screen.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
 void main() async {
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AuthWrapper(),
+      home: const SplashScreen(),
     );
   }
 }
