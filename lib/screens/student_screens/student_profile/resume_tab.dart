@@ -17,10 +17,14 @@ class ResumeTab extends StatefulWidget {
   State<ResumeTab> createState() => _ResumeTabState();
 }
 
-class _ResumeTabState extends State<ResumeTab> {
+class _ResumeTabState extends State<ResumeTab>
+    with AutomaticKeepAliveClientMixin {
   final ResumeRepository _resumeRepository = ResumeRepository();
   final CommonRepository _commonRepository = CommonRepository();
   bool isUploading = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   Future<void> _pickAndUploadCV(int currentCount) async {
     if (currentCount >= 2) {
@@ -135,6 +139,7 @@ class _ResumeTabState extends State<ResumeTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final user = _commonRepository.getCurrentUser();
 
     return StreamBuilder<DocumentSnapshot>(

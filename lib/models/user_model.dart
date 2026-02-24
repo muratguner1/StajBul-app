@@ -12,6 +12,7 @@ class UserModel {
   final String? linkedin;
   final String? github;
   final String? address;
+  final String? portfolio;
 
   UserModel({
     required this.uid,
@@ -22,6 +23,7 @@ class UserModel {
     this.linkedin,
     this.github,
     this.address,
+    this.portfolio,
   });
 
   factory UserModel.fromSnapshot(DocumentSnapshot snap) {
@@ -35,6 +37,7 @@ class UserModel {
       linkedin: data[FirestoreUserFields.linkedin],
       github: data[FirestoreUserFields.github],
       address: data[FirestoreUserFields.address],
+      portfolio: data[FirestoreUserFields.portfolio],
     );
   }
 
@@ -47,6 +50,7 @@ class UserModel {
       FirestoreUserFields.linkedin: linkedin,
       FirestoreUserFields.github: github,
       FirestoreUserFields.address: address,
+      FirestoreUserFields.portfolio: portfolio,
     };
   }
 }

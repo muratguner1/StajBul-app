@@ -41,6 +41,7 @@ class FirestoreUserFields {
   static const String linkedin = 'linkedin';
   static const String github = 'github';
   static const String address = 'address';
+  static const String portfolio = 'portfolio';
 }
 
 class FireStoreExperienceFields {

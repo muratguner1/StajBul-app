@@ -13,7 +13,8 @@ class ExperiencesTab extends StatefulWidget {
   State<ExperiencesTab> createState() => _ExperiencesTabState();
 }
 
-class _ExperiencesTabState extends State<ExperiencesTab> {
+class _ExperiencesTabState extends State<ExperiencesTab>
+    with AutomaticKeepAliveClientMixin {
   final ExperienceRepository _experienceRepository = ExperienceRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
@@ -27,6 +28,9 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
   bool _isCurrentlyWorking = false;
   bool isLoading = false;
   String? _dateError;
+
+  @override
+  bool get wantKeepAlive => true;
 
   void _resetForm() {
     _companyController.clear();
@@ -359,6 +363,7 @@ class _ExperiencesTabState extends State<ExperiencesTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final user = _commonRepository.getCurrentUser();
     if (user == null) return const Center(child: CircularProgressIndicator());
 

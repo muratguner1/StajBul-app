@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
@@ -77,9 +78,9 @@ class Auth {
       } //sonra admin için de ekleme yap
 
       return userModel;
-    } catch (e) {
-      print('Register error: $e');
-      return null;
+    } catch (e, stackTrace) {
+      LogService.error('An error occured when user register!', e, stackTrace);
+      rethrow;
     }
   }
 
@@ -94,8 +95,9 @@ class Auth {
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      print('Resed password error: $e');
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An error occured when user reset password!', e, stackTrace);
       rethrow;
     }
   }

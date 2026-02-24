@@ -13,7 +13,8 @@ class PersonalInfoTab extends StatefulWidget {
   State<PersonalInfoTab> createState() => _PersonalInfoTabState();
 }
 
-class _PersonalInfoTabState extends State<PersonalInfoTab> {
+class _PersonalInfoTabState extends State<PersonalInfoTab>
+    with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final CommonRepository _commonRepository = CommonRepository();
   StudentProfileModel? _profile;
@@ -31,6 +32,9 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
   bool isEditing = false;
 
   Map<String, dynamic> backupData = {};
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -140,6 +144,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),

@@ -12,7 +12,8 @@ class SkillsTab extends StatefulWidget {
   State<SkillsTab> createState() => _SkillsTabState();
 }
 
-class _SkillsTabState extends State<SkillsTab> {
+class _SkillsTabState extends State<SkillsTab>
+    with AutomaticKeepAliveClientMixin {
   final SkillsRepository _skillsRepository = SkillsRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
@@ -30,6 +31,9 @@ class _SkillsTabState extends State<SkillsTab> {
     super.initState();
     _fetchData();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
@@ -99,6 +103,7 @@ class _SkillsTabState extends State<SkillsTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (_isLoading && _skills.isEmpty && _languages.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }

@@ -7,6 +7,7 @@ import 'package:staj_bul_demo/screens/authentication/register.dart';
 import 'package:staj_bul_demo/screens/company_screens/company_menu.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_menu.dart';
 import 'package:staj_bul_demo/services/auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,12 +39,20 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             SizedBox(height: screenH * 0.15),
             Text(
-              'Staj Bul',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.blueAccent,
-                letterSpacing: 1.2,
+              'StajBul',
+              style: GoogleFonts.pacifico(
+                textStyle: const TextStyle(
+                  fontSize: 45,
+                  color: Colors.blue,
+                  letterSpacing: 1.5,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(2, 2),
+                      blurRadius: 3.0,
+                      color: Colors.black26,
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(

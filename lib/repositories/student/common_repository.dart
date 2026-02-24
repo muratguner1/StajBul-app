@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
+import 'package:staj_bul_demo/models/user_model.dart';
 
 class CommonRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -42,6 +43,25 @@ class CommonRepository {
     } catch (e, stackTrace) {
       LogService.error(
           'An error occured when getting student profile!', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<UserModel?> getUserModel(String userId) async {
+    LogService.info('Getting user informations for $userId');
+    try {
+      final doc = await _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .get();
+
+      if (doc.exists) {
+        return UserModel.fromSnapshot(doc);
+      }
+      return null;
+    } catch (e, stcakTrace) {
+      LogService.error(
+          'An error occured when getting user informations', e, stcakTrace);
       rethrow;
     }
   }
