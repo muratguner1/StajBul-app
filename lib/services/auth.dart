@@ -6,7 +6,7 @@ import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
 
 class Auth {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<UserModel?> _userFromFirebase(User? user) async {
@@ -25,7 +25,7 @@ class Auth {
   }
 
   Stream<UserModel?> get user async* {
-    await for (final firebaseUser in _auth.authStateChanges()) {
+    await for (final firebaseUser in _firebaseAuth.authStateChanges()) {
       if (firebaseUser == null) {
         yield null;
       } else {
@@ -37,7 +37,7 @@ class Auth {
   Future<UserModel?> register(
       String email, String password, String role, String name) async {
     try {
-      final result = await _auth.createUserWithEmailAndPassword(
+      final result = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -85,7 +85,7 @@ class Auth {
   }
 
   Future<UserModel?> login(String email, String password) async {
-    final result = await _auth.signInWithEmailAndPassword(
+    final result = await _firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -93,8 +93,9 @@ class Auth {
   }
 
   Future<void> resetPassword(String email) async {
+    LogService.info('Reseting password for email: $email');
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
     } catch (e, stackTrace) {
       LogService.error(
           'An error occured when user reset password!', e, stackTrace);
@@ -103,6 +104,19 @@ class Auth {
   }
 
   Future<void> logout() async {
-    await _auth.signOut();
+    LogService.info('Logging out');
+    await _firebaseAuth.signOut();
+  }
+
+  Future<void> deleteAccount(String userId) async {
+    LogService.info('Deleting account for user: $userId');
+    try {
+      await _firebaseAuth.currentUser?.delete();
+      await _firestore.collection('users').doc(userId).delete();
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An error occured when user reset password!', e, stackTrace);
+      rethrow;
+    }
   }
 }

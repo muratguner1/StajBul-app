@@ -208,7 +208,6 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300),
           ),
