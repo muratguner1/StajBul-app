@@ -1,7 +1,10 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/providers/theme_provider.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
@@ -15,16 +18,85 @@ class StudentSettingsPage extends StatefulWidget {
   State<StudentSettingsPage> createState() => _StudentSettingsPageState();
 }
 
-//TODO: uygulama açıldığında login sayfasına gidiyor
-//TODO: bildirimleri hallet
-
 class _StudentSettingsPageState extends State<StudentSettingsPage> {
   final Auth _auth = Auth();
   final CommonRepository _commonRepository = CommonRepository();
   bool get _provider => Provider.of<ThemeProvider>(context).isDarkMode;
 
   bool _notificationsEnabled = true;
-  bool _isDarkMode = false;
+  bool _isLoadingNotifications =
+      true; //sonra değiştir true yap, şuan hafızada bilgi olmadığı için devre dışı bıraktım.
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreferences();
+  }
+
+  Future<void> _loadNotificationPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+      _isLoadingNotifications = false;
+
+      if (_notificationsEnabled) {
+        FirebaseMessaging.instance
+            .subscribeToTopic(FirebaseMessagingTopic.notification);
+      }
+    });
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    final messaging = FirebaseMessaging.instance;
+
+    try {
+      if (value) {
+        NotificationSettings settings = await messaging.requestPermission();
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          await messaging.subscribeToTopic(FirebaseMessagingTopic.notification);
+          await prefs.setBool('notifications_enabled', true);
+
+          setState(() {
+            _notificationsEnabled = true;
+          });
+
+          AwesomeSnackBar.show(context,
+              title: 'Bildirimler Açıldı',
+              message: 'Yeni staj ilanlarından haberdar edileceksiniz.',
+              contentType: ContentType.success);
+        } else {
+          AwesomeSnackBar.show(context,
+              title: 'İzin Gerekli',
+              message:
+                  'Bildirim alabilmek için telefon ayarlarından izin vermelisiniz.',
+              contentType: ContentType.warning);
+
+          setState(() {
+            _notificationsEnabled = false;
+          });
+        }
+      } else {
+        await messaging
+            .unsubscribeFromTopic(FirebaseMessagingTopic.notification);
+        await prefs.setBool('notifications_enabled', false);
+
+        setState(() {
+          _notificationsEnabled = false;
+        });
+
+        AwesomeSnackBar.show(context,
+            title: 'Bildirimler Kapatıldı',
+            message: 'Artık staj ilanı bildirimi almayacaksınız.',
+            contentType: ContentType.help);
+      }
+    } catch (e) {
+      AwesomeSnackBar.show(context,
+          title: 'Hata',
+          message: 'Bildirim ayarı değiştirilemedi.',
+          contentType: ContentType.failure);
+    }
+  }
 
   Future<void> _handleLogout() async {
     await _auth.logout();
@@ -35,6 +107,33 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
           MaterialPageRoute(builder: (context) => const LoginPage()),
           (Route<dynamic> route) => false);
     }
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Çıkış Yap',
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+        content: const Text('Çıkış yapmak istediğinizden emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+              onPressed: _handleLogout,
+              child: const Text(
+                'Çıkış Yap',
+                style: TextStyle(color: Colors.white),
+              ))
+        ],
+      ),
+    );
   }
 
   void _showPasswordResetDialog() {
@@ -169,21 +268,19 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
                 onTap: _showDeleteAccountDialog),
             const SizedBox(height: 20),
             _buildSectionHeader('Uygulama'),
-            SwitchListTile(
-              secondary: const Icon(
-                Icons.notifications_active_outlined,
-                color: Colors.blueAccent,
-              ),
-              title: const Text('Bildirimler'),
-              subtitle: const Text('Staj ilanları ve mesaj bildirimleri'),
-              value: _notificationsEnabled,
-              activeThumbColor: Colors.blueAccent,
-              onChanged: (bool value) {
-                setState(() {
-                  _notificationsEnabled = value;
-                });
-              },
-            ),
+            _isLoadingNotifications
+                ? const Center(child: CircularProgressIndicator())
+                : SwitchListTile(
+                    secondary: const Icon(
+                      Icons.notifications_active_outlined,
+                      color: Colors.blueAccent,
+                    ),
+                    title: const Text('Bildirimler'),
+                    subtitle: const Text('Staj ilanları ve mesaj bildirimleri'),
+                    value: _notificationsEnabled,
+                    activeThumbColor: Colors.blueAccent,
+                    onChanged: _toggleNotifications,
+                  ),
             SwitchListTile(
               secondary: Icon(
                 _provider ? Icons.dark_mode : Icons.light_mode,
@@ -222,7 +319,7 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
               width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
-                onPressed: _handleLogout,
+                onPressed: _showLogoutDialog,
                 label: const Text(
                   'Çıkış Yap',
                   style: TextStyle(

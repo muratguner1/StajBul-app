@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/models/user_model.dart';

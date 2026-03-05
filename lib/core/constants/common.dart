@@ -53,3 +53,7 @@ class FireStoreExperienceFields {
   static const String isCurrent = 'isCurrent';
   static const String createdAt = 'createdAt';
 }
+
+class FirebaseMessagingTopic {
+  static const String notification = 'staj_ilanlari';
+}

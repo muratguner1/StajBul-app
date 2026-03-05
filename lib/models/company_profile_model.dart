@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/core/constants/common.dart';
 
 class CompanyProfileModel {
   final String uid;

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:staj_bul_demo/core/constants/firestore_constants.dart';
+import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 
