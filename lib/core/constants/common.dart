@@ -26,7 +26,7 @@ class FirestoreStudentFields {
 class FirestoreCompanyFields {
   static const String companyName = 'companyName';
   static const String logoUrl = 'logoUrl';
-  static const String address = 'address';
+  static const String location = 'location';
   static const String website = 'website';
   static const String industry = 'industry';
   static const String aboutCompany = 'aboutCompany';

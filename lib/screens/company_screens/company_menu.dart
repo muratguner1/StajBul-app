@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:staj_bul_demo/screens/company_screens/company_home.dart';
-import 'package:staj_bul_demo/screens/company_screens/company_profile.dart';
+import 'package:staj_bul_demo/screens/company_screens/profile/company_profile.dart';
 
 class CompanyMenuPage extends StatefulWidget {
   const CompanyMenuPage({super.key});
@@ -17,7 +17,7 @@ class _CompanyMenuPageState extends State<CompanyMenuPage> {
     CompanyHomePage(),
     Text('İlanlar'),
     Text('Mesalar'),
-    CompanyProfile(),
+    CompanyProfilePage(),
   ];
   @override
   Widget build(BuildContext context) {

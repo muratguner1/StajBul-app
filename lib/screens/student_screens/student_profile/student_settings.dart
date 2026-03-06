@@ -1,5 +1,4 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -184,7 +183,7 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
   void _showDeleteAccountDialog() {
     showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
               title:
                   const Text('Hesabı Sil', style: TextStyle(color: Colors.red)),
               content: const Text(
@@ -192,31 +191,43 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Vazgeç'),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent),
                   onPressed: () async {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogContext);
                     try {
                       final user = _commonRepository.getCurrentUser();
                       await _auth.deleteAccount(user!.uid);
-                      if (mounted) {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginPage()),
-                            (Route<dynamic> route) => false);
-                      }
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'requires-recent-login' && mounted) {
+
+                      if (!mounted) return;
+
+                      Navigator.of(context, rootNavigator: true)
+                          .pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
+                              (route) => false);
+                    } catch (e) {
+                      if (!mounted) return;
+
+                      final errorText = e.toString();
+
+                      if (errorText.contains('requires-recent-login') ||
+                          errorText.contains('ERROR_REQUIRES_RECENT_LOGIN') ||
+                          errorText.contains('recent authentication')) {
                         AwesomeSnackBar.show(context,
                             title: 'Güvenlik Uyarısı',
                             message:
-                                'Hesabınızı silmek için lütfen çıkış yapıp tekrar giriş yapın.',
+                                'Güvenlik gereği hesabınızı silmeden önce çıkış yapıp tekrar giriş yapmalısınız.',
                             contentType: ContentType.warning);
+                      } else {
+                        AwesomeSnackBar.show(context,
+                            title: 'Hata Oluştu',
+                            message: 'İşlem başarısız oldu.',
+                            contentType: ContentType.failure);
                       }
                     }
                   },

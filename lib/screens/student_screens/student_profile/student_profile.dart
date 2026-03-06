@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/contact_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/experiences_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/personal_info_tab.dart';
@@ -72,7 +72,7 @@ class _StudentProfilePageState extends State<StudentProfilePage>
       final profileUrl = await _profileRepository.getProfileImageUrl(user.uid);
       final defaultPhotoUrl = await _profileRepository.getDefaultPhotoUrl();
 
-      final model = await _commonRepository.getStudentProfileModel(user.uid);
+      final model = await _profileRepository.getStudentProfileModel(user.uid);
 
       String? fullName;
       String? university;

@@ -2,7 +2,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile/contact_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/build_text_filed.dart';
@@ -18,7 +18,7 @@ class _ContactTabState extends State<ContactTab>
     with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final CommonRepository _commonRepository = CommonRepository();
-  final ContactRepository _contactRepository = ContactRepository();
+  final ProfileRepository _profileRepository = ProfileRepository();
   UserModel? _userModel;
 
   final TextEditingController _emailController = TextEditingController();
@@ -93,7 +93,7 @@ class _ContactTabState extends State<ContactTab>
     setState(() => isLoading = true);
 
     try {
-      await _contactRepository.updateContactInfo(
+      await _profileRepository.updateContactInfo(
         uid: _userModel!.uid,
         phone: _phoneController.text.trim(),
         address: _addressController.text.trim(),

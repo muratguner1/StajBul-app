@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
@@ -17,7 +18,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
     with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final CommonRepository _commonRepository = CommonRepository();
-  StudentProfileModel? _profile;
+  final ProfileRepository _profileRepository = ProfileRepository();
+  StudentProfileModel? _profileModel;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _universityController = TextEditingController();
@@ -57,11 +59,11 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
       final user = _commonRepository.getCurrentUser();
 
       if (user != null) {
-        final model = await _commonRepository.getStudentProfileModel(user.uid);
+        final model = await _profileRepository.getStudentProfileModel(user.uid);
         if (mounted) {
           setState(() {
             if (model != null) {
-              _profile = model;
+              _profileModel = model;
               _populateControllers(model);
             } else {
               AwesomeSnackBar.show(context,
@@ -88,7 +90,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_profile == null) {
+    if (_profileModel == null) {
       AwesomeSnackBar.show(context,
           title: '',
           message: 'Profil verileri yüklenemediği için işlem yapılamıyor.',
@@ -102,7 +104,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
 
     if (user != null) {
       try {
-        final updatedProfile = _profile!.copyWith(
+        final updatedProfile = _profileModel!.copyWith(
           uid: user.uid,
           fullName: _nameController.text.trim(),
           university: _universityController.text.trim(),
@@ -113,10 +115,10 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
           aboutMe: _aboutController.text.trim(),
         );
 
-        await _commonRepository.updateStudentProfile(updatedProfile);
+        await _profileRepository.updateStudentProfile(updatedProfile);
 
         setState(() {
-          _profile = updatedProfile;
+          _profileModel = updatedProfile;
           isEditing = false;
         });
 
@@ -151,7 +153,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
       );
     }
 
-    if (_profile == null) {
+    if (_profileModel == null) {
       return const Center(child: Text("Kullanıcı bilgileri yüklenemedi."));
     }
 
@@ -236,7 +238,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
                 icon: const Icon(Icons.close, color: Colors.grey),
                 onPressed: () {
                   setState(() {
-                    if (_profile != null) _populateControllers(_profile!);
+                    if (_profileModel != null)
+                      _populateControllers(_profileModel!);
                     isEditing = false;
                   });
                 },
@@ -284,7 +287,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
                 child: OutlinedButton(
                   onPressed: () {
                     setState(() {
-                      if (_profile != null) _populateControllers(_profile!);
+                      if (_profileModel != null)
+                        _populateControllers(_profileModel!);
                       isEditing = false;
                     });
                   },

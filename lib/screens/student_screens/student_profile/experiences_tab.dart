@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/models/experience_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile/experience_repository.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
 import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ExperiencesTab extends StatefulWidget {
@@ -15,7 +15,7 @@ class ExperiencesTab extends StatefulWidget {
 
 class _ExperiencesTabState extends State<ExperiencesTab>
     with AutomaticKeepAliveClientMixin {
-  final ExperienceRepository _experienceRepository = ExperienceRepository();
+  final ProfileRepository _profileRepository = ProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
   final _formKey = GlobalKey<FormState>();
@@ -87,7 +87,7 @@ class _ExperiencesTabState extends State<ExperiencesTab>
           endDate: _isCurrentlyWorking ? null : _endDate,
           isCurrent: _isCurrentlyWorking);
 
-      await _experienceRepository.saveExperience(user.uid, experience);
+      await _profileRepository.saveExperience(user.uid, experience);
 
       if (mounted) {
         Navigator.pop(context);
@@ -149,7 +149,7 @@ class _ExperiencesTabState extends State<ExperiencesTab>
       final user = _commonRepository.getCurrentUser();
       if (user == null) return;
 
-      await _experienceRepository.deleteExperience(user.uid, docId);
+      await _profileRepository.deleteExperience(user.uid, docId);
 
       if (mounted) {
         AwesomeSnackBar.show(
@@ -374,7 +374,7 @@ class _ExperiencesTabState extends State<ExperiencesTab>
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: StreamBuilder<List<ExperienceModel>>(
-        stream: _experienceRepository.getAllExperiences(user.uid),
+        stream: _profileRepository.getAllExperiences(user.uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Bir hata oluştu'));
