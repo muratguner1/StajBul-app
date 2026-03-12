@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_header.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_profile_completition_card.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_recent_internships.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_search_bar.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_categories.dart';
-import 'package:staj_bul_demo/widgets/student/home_page/build_section_title.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_header.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_profile_completition_card.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_recent_internships.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_search_bar.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_categories.dart';
+import 'package:staj_bul_demo/core/widgets/student/home_page/build_section_title.dart';
 
 class StudentHomePage extends StatefulWidget {
   final VoidCallback onGoToProfile;

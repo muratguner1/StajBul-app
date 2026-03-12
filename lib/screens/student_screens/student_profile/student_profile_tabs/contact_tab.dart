@@ -1,11 +1,11 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_row.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_text_field.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/build_text_filed.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ContactTab extends StatefulWidget {
   const ContactTab({super.key});
@@ -171,12 +171,24 @@ class _ContactTabState extends State<ContactTab>
         ),
         const Divider(),
         const SizedBox(height: 10),
-        buildInfoRow(Icons.email, 'E-Posta', _emailController.text),
-        buildInfoRow(Icons.phone, "Telefon", _phoneController.text),
-        buildInfoRow(Icons.location_on, "Adres", _addressController.text),
-        buildInfoRow(Icons.link, "LinkedIn", _linkedinController.text),
-        buildInfoRow(Icons.code, "GitHub", _githubController.text),
-        buildInfoRow(Icons.language, "Portfolyo", _portfolioController.text),
+        CustomInfoRow(
+            icon: Icons.email, value: _emailController.text, label: 'Eposta'),
+        CustomInfoRow(
+            icon: Icons.phone, value: _phoneController.text, label: 'Telefon'),
+        CustomInfoRow(
+            icon: Icons.location_on,
+            value: _addressController.text,
+            label: 'Adres'),
+        CustomInfoRow(
+            icon: Icons.link,
+            value: _linkedinController.text,
+            label: 'LinkedIn'),
+        CustomInfoRow(
+            icon: Icons.code, value: _githubController.text, label: 'GitHub'),
+        CustomInfoRow(
+            icon: Icons.language,
+            value: _portfolioController.text,
+            label: 'Portfolyo'),
       ],
     );
   }
@@ -203,20 +215,35 @@ class _ContactTabState extends State<ContactTab>
             ],
           ),
           const SizedBox(height: 16),
-          buildInfoRow(
-              Icons.email, 'E-Posta (Değiştirilemez)', _emailController.text),
+          CustomInfoRow(
+              icon: Icons.email,
+              value: _emailController.text,
+              label: 'E-Posta (Değiştirilemez)'),
           const SizedBox(height: 16),
-          buildTextField("Telefon Numaranız", _phoneController, Icons.phone),
+          CustomTextField(
+              controller: _phoneController,
+              icon: Icons.phone,
+              labelText: 'Telefon Numaranız'),
           const SizedBox(height: 16),
-          buildTextField("Adres", _addressController, Icons.location_on),
+          CustomTextField(
+              controller: _addressController,
+              icon: Icons.location_on,
+              labelText: 'Adres'),
           const SizedBox(height: 16),
-          buildTextField(
-              "LinkedIn Profil Linki", _linkedinController, Icons.link),
+          CustomTextField(
+              controller: _linkedinController,
+              icon: Icons.link,
+              labelText: 'LinkedIn Profil Linki'),
           const SizedBox(height: 16),
-          buildTextField("GitHub Profil Linki", _githubController, Icons.code),
+          CustomTextField(
+              controller: _githubController,
+              icon: Icons.code,
+              labelText: 'GitHub Profil Linki'),
           const SizedBox(height: 16),
-          buildTextField(
-              "Web Sitesi / Portfolyo", _portfolioController, Icons.language),
+          CustomTextField(
+              controller: _portfolioController,
+              icon: Icons.language,
+              labelText: 'Web Sitesi / Portfolyo'),
           const SizedBox(height: 24),
           Row(
             children: [

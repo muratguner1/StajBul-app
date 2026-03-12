@@ -1,14 +1,18 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_dialog.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_section_header.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_settings_tile.dart';
 import 'package:staj_bul_demo/providers/theme_provider.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class StudentSettingsPage extends StatefulWidget {
   const StudentSettingsPage({super.key});
@@ -23,8 +27,7 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
   bool get _provider => Provider.of<ThemeProvider>(context).isDarkMode;
 
   bool _notificationsEnabled = true;
-  bool _isLoadingNotifications =
-      true; //sonra değiştir true yap, şuan hafızada bilgi olmadığı için devre dışı bıraktım.
+  bool _isLoadingNotifications = true;
 
   @override
   void initState() {
@@ -123,13 +126,13 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
             child: const Text('İptal', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-              style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
-              onPressed: _handleLogout,
-              child: const Text(
-                'Çıkış Yap',
-                style: TextStyle(color: Colors.white),
-              ))
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+            onPressed: _handleLogout,
+            child: const Text(
+              'Çıkış Yap',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
@@ -140,44 +143,42 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
     if (user == null || user.email == null) return;
 
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text('Şifre Değiştir'),
-              content: Text(
-                  '${user.email} adresine bir şifre sıfırlama bağlantısı gönderilecek. Onaylıyor musunuz?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child:
-                      const Text('İptal', style: TextStyle(color: Colors.grey)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    try {
-                      await _auth.resetPassword(user.email!);
-                      if (mounted) {
-                        AwesomeSnackBar.show(context,
-                            title: 'Bağlantı Gönderildi',
-                            message: 'Lütfen e-posta kutunuzu kontrol edin.',
-                            contentType: ContentType.success);
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        AwesomeSnackBar.show(context,
-                            title: 'Hata',
-                            message: 'E-posta gönderilemedi.',
-                            contentType: ContentType.failure);
-                      }
-                    }
-                  },
-                  child: const Text('Gönder',
-                      style: TextStyle(color: Colors.white)),
-                )
-              ],
-            ));
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Şifre Değiştir'),
+        content: Text(
+            '${user.email} adresine bir şifre sıfırlama bağlantısı gönderilecek. Onaylıyor musunuz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('İptal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              try {
+                await _auth.resetPassword(user.email!);
+                if (mounted) {
+                  AwesomeSnackBar.show(context,
+                      title: 'Bağlantı Gönderildi',
+                      message: 'Lütfen e-posta kutunuzu kontrol edin.',
+                      contentType: ContentType.success);
+                }
+              } catch (e) {
+                if (mounted) {
+                  AwesomeSnackBar.show(context,
+                      title: 'Hata',
+                      message: 'E-posta gönderilemedi.',
+                      contentType: ContentType.failure);
+                }
+              }
+            },
+            child: const Text('Gönder', style: TextStyle(color: Colors.white)),
+          )
+        ],
+      ),
+    );
   }
 
   void _showDeleteAccountDialog() {
@@ -210,24 +211,13 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
                               MaterialPageRoute(
                                   builder: (context) => const LoginPage()),
                               (route) => false);
-                    } catch (e) {
-                      if (!mounted) return;
-
-                      final errorText = e.toString();
-
-                      if (errorText.contains('requires-recent-login') ||
-                          errorText.contains('ERROR_REQUIRES_RECENT_LOGIN') ||
-                          errorText.contains('recent authentication')) {
+                    } on FirebaseAuthException catch (e) {
+                      if (e.code == 'requires-recent-login' && mounted) {
                         AwesomeSnackBar.show(context,
                             title: 'Güvenlik Uyarısı',
                             message:
-                                'Güvenlik gereği hesabınızı silmeden önce çıkış yapıp tekrar giriş yapmalısınız.',
+                                'Hesabınızı silmek için lütfen çıkış yapıp tekrar giriş yapın.',
                             contentType: ContentType.warning);
-                      } else {
-                        AwesomeSnackBar.show(context,
-                            title: 'Hata Oluştu',
-                            message: 'İşlem başarısız oldu.',
-                            contentType: ContentType.failure);
                       }
                     }
                   },
@@ -236,22 +226,6 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
                 )
               ],
             ));
-  }
-
-  void _showInfoDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(child: Text(content)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Kapat"),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -266,19 +240,18 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildSectionHeader('Hesap'),
-            _buildSettingsTile(
+            CustomSectionHeader(title: 'Hesap'),
+            CustomSettingsTile(
                 icon: Icons.lock_outline,
                 title: 'Şifre Değiştir',
                 onTap: _showPasswordResetDialog),
-            _buildSettingsTile(
+            CustomSettingsTile(
                 icon: Icons.delete_forever,
                 title: 'Hesabı Sil',
-                textColor: Colors.red,
-                iconColor: Colors.red,
-                onTap: _showDeleteAccountDialog),
+                onTap: _showDeleteAccountDialog,
+                iconColor: Colors.red),
             const SizedBox(height: 20),
-            _buildSectionHeader('Uygulama'),
+            CustomSectionHeader(title: 'Uygulama'),
             _isLoadingNotifications
                 ? const Center(child: CircularProgressIndicator())
                 : SwitchListTile(
@@ -306,25 +279,27 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
               },
             ),
             const SizedBox(height: 20),
-            _buildSectionHeader('Destek & Hakkında'),
-            _buildSettingsTile(
+            CustomSectionHeader(title: 'Destek & Hakkında'),
+            CustomSettingsTile(
                 icon: Icons.help_outline,
                 title: 'Yardım Merkezi',
-                onTap: () => _showInfoDialog('Yardım Merkezi',
-                    'StajBul uygulamasında staj aramak veya profilinizi düzenlemekle ilgili sorun yaşıyorsanız stajbul@destek.com adresine e-posta gönderebilirsiniz.')),
-            _buildSettingsTile(
-              icon: Icons.privacy_tip_outlined,
-              title: 'Gizlilik Politikası',
-              onTap: () => _showInfoDialog('Gizlilik Politikası',
-                  'Bilgileriniz güvenle saklanmaktadır. Üçüncü şahıslarla KVKK kapsamında belirtilen durumlar dışında kesinlikle paylaşılmaz'),
-            ),
-            _buildSettingsTile(
-              icon: Icons.info_outline,
-              title: 'Uygulama Sürümü',
-              trailing: const Text('v1.0.0',
-                  style: TextStyle(color: Colors.grey, fontSize: 14)),
-              onTap: null,
-            ),
+                onTap: () => CustomInfoDialog.show(context,
+                    title: 'Yardım Merkezi',
+                    content:
+                        'StajBul uygulamasında staj aramak veya profilinizi düzenlemekle ilgili sorun yaşıyorsanız stajbul@destek.com adresine e-posta gönderebilirsiniz.')),
+            CustomSettingsTile(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Gizlilik Politikası',
+                onTap: () => CustomInfoDialog.show(context,
+                    title: 'Gizlilik Politikası',
+                    content:
+                        'Bilgileriniz güvenle saklanmaktadır. Üçüncü şahıslarla KVKK kapsamında belirtilen durumlar dışında kesinlikle paylaşılmaz')),
+            CustomSettingsTile(
+                icon: Icons.info_outline,
+                title: 'Uygulama Sürümü',
+                trailing: const Text('v1.0.0',
+                    style: TextStyle(color: Colors.grey, fontSize: 14)),
+                onTap: null),
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
@@ -345,55 +320,12 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red, width: 2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
               ),
             ),
           ],
         ));
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.blueAccent,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile(
-      {required IconData icon,
-      required String title,
-      VoidCallback? onTap,
-      Color? textColor,
-      Color? iconColor,
-      Widget? trailing}) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: iconColor,
-      ),
-      title: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.w500),
-      ),
-      trailing: trailing ??
-          const Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: Colors.grey,
-          ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-    );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
@@ -217,12 +217,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                               contentType: ContentType.failure);
                                         }
                                       } catch (e) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text('Hata oluştu: $e'),
-                                          ),
-                                        );
+                                        AwesomeSnackBar.show(context,
+                                            title: 'Kayıt Başarısız!',
+                                            message:
+                                                'Kayıt yapılırken bir hata oluştu lütfen tekrar deneyiniz.',
+                                            contentType: ContentType.failure);
                                       } finally {
                                         setState(() {
                                           loaded = true;

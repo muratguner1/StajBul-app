@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/models/experience_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ExperiencesTab extends StatefulWidget {
   const ExperiencesTab({super.key});

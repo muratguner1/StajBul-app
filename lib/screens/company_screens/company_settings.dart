@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
 import 'package:staj_bul_demo/services/auth.dart';
 
-class CompanySettingsPage extends StatelessWidget {
-  CompanySettingsPage({super.key});
+class CompanySettingsPage2 extends StatelessWidget {
+  CompanySettingsPage2({super.key});
   final Auth auth = Auth();
   @override
   Widget build(BuildContext context) {
