@@ -1,7 +1,7 @@
 class FirestoreCollections {
   static const String studentProfiles = 'studentProfiles';
   static const String companyProfiles = 'companyProfiles';
-  static const String listings = 'listings';
+  static const String posts = 'posts';
   static const String applications = 'applications';
   static const String users = 'users';
   static const String defaultProfile = 'default';
@@ -25,6 +25,7 @@ class FirestoreStudentFields {
 
 class FirestoreCompanyFields {
   static const String companyName = 'companyName';
+  static const String companyId = 'companyId';
   static const String logoUrl = 'logoUrl';
   static const String location = 'location';
   static const String website = 'website';
@@ -36,7 +37,6 @@ class FirestoreUserFields {
   static const String email = 'email';
   static const String role = 'role';
   static const String createdAt = 'createdAt';
-
   static const String phone = 'phone';
   static const String linkedin = 'linkedin';
   static const String github = 'github';
@@ -52,6 +52,18 @@ class FireStoreExperienceFields {
   static const String endDate = 'endDate';
   static const String isCurrent = 'isCurrent';
   static const String createdAt = 'createdAt';
+}
+
+class FireStorePostFields {
+  static const String positionTitle = 'positionTitle';
+  static const String description = 'description';
+  static const String qualifications = 'qualifications';
+  static const String location = 'location';
+  static const String workType = 'workType';
+  static const String internshipType = 'internshipType';
+  static const String tags = 'tags';
+  static const String createdAt = 'createdAt';
+  static const String isActive = 'isActive';
 }
 
 class FirebaseMessagingTopic {

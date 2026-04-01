@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_dialog.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_section_header.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_settings_tile.dart';
@@ -137,10 +138,11 @@ class _CompanySettingsPageState extends State<CompanySettingsPage> {
               if (user == null) return;
 
               try {
-                await _auth.deleteAccount(user.uid);
-                await user.delete();
+                await _auth.deleteAccount(
+                    user.uid, FirestoreCollections.companyProfiles);
 
                 if (!mounted) return;
+
                 Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                     (route) => false);

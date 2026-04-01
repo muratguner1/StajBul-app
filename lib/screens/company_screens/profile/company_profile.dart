@@ -89,6 +89,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             icon: Icon(Icons.settings),
           ),
         ],
+        automaticallyImplyLeading: false,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

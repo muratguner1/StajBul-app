@@ -200,9 +200,12 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
                       backgroundColor: Colors.blueAccent),
                   onPressed: () async {
                     Navigator.pop(dialogContext);
+                    final user = _commonRepository.getCurrentUser();
+                    if (user == null) return;
+
                     try {
-                      final user = _commonRepository.getCurrentUser();
-                      await _auth.deleteAccount(user!.uid);
+                      await _auth.deleteAccount(
+                          user.uid, FirestoreCollections.studentProfiles);
 
                       if (!mounted) return;
 

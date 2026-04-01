@@ -108,7 +108,7 @@ class Auth {
     await _firebaseAuth.signOut();
   }
 
-  Future<void> deleteAccount(String userId) async {
+  Future<void> deleteAccount(String userId, String roleCollection) async {
     LogService.info('Deleting account for user: $userId');
     try {
       await _firebaseAuth.currentUser?.delete();
@@ -116,14 +116,11 @@ class Auth {
           .collection(FirestoreCollections.users)
           .doc(userId)
           .delete();
-      await _firestore
-          .collection(FirestoreCollections.studentProfiles)
-          .doc(userId)
-          .delete();
+      await _firestore.collection(roleCollection).doc(userId).delete();
       await _firebaseAuth.signOut();
     } catch (e, stackTrace) {
       LogService.error(
-          'An error occured when deleting user account!', e, stackTrace);
+          'An error occured when deleting  account!', e, stackTrace);
       rethrow;
     }
   }
