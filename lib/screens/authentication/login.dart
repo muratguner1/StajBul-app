@@ -1,7 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/reset_password.dart';
 import 'package:staj_bul_demo/screens/authentication/register.dart';
 import 'package:staj_bul_demo/screens/company_screens/company_menu.dart';

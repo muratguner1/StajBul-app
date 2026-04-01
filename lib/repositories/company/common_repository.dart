@@ -5,8 +5,8 @@ import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 
 class CommonRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   User? getCurrentUser() {
     LogService.info('Getting current user');
@@ -30,21 +30,5 @@ class CommonRepository {
           'An error occured when getting user informations', e, stcakTrace);
       rethrow;
     }
-  }
-
-  CollectionReference<Map<String, dynamic>> getInnerCollection(
-      String userId, String collection) {
-    return _firestore
-        .collection(FirestoreCollections.studentProfiles)
-        .doc(userId)
-        .collection(collection);
-  }
-
-  //şuanda kullanılmıyor
-  Stream<DocumentSnapshot> getStudentProfileStream(String userId) {
-    return _firestore
-        .collection(FirestoreCollections.studentProfiles)
-        .doc(userId)
-        .snapshots();
   }
 }

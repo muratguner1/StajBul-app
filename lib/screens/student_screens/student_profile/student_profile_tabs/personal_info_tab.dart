@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_row.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_text_field.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/build_info_row.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/build_text_filed.dart';
 
 class PersonalInfoTab extends StatefulWidget {
   const PersonalInfoTab({super.key});
@@ -17,7 +18,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
     with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final CommonRepository _commonRepository = CommonRepository();
-  StudentProfileModel? _profile;
+  final ProfileRepository _profileRepository = ProfileRepository();
+  StudentProfileModel? _profileModel;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _universityController = TextEditingController();
@@ -57,11 +59,11 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
       final user = _commonRepository.getCurrentUser();
 
       if (user != null) {
-        final model = await _commonRepository.getStudentProfileModel(user.uid);
+        final model = await _profileRepository.getStudentProfileModel(user.uid);
         if (mounted) {
           setState(() {
             if (model != null) {
-              _profile = model;
+              _profileModel = model;
               _populateControllers(model);
             } else {
               AwesomeSnackBar.show(context,
@@ -88,7 +90,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
   Future<void> _saveUserData() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_profile == null) {
+    if (_profileModel == null) {
       AwesomeSnackBar.show(context,
           title: '',
           message: 'Profil verileri yüklenemediği için işlem yapılamıyor.',
@@ -102,7 +104,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
 
     if (user != null) {
       try {
-        final updatedProfile = _profile!.copyWith(
+        final updatedProfile = _profileModel!.copyWith(
           uid: user.uid,
           fullName: _nameController.text.trim(),
           university: _universityController.text.trim(),
@@ -113,10 +115,10 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
           aboutMe: _aboutController.text.trim(),
         );
 
-        await _commonRepository.updateStudentProfile(updatedProfile);
+        await _profileRepository.updateStudentProfile(updatedProfile);
 
         setState(() {
-          _profile = updatedProfile;
+          _profileModel = updatedProfile;
           isEditing = false;
         });
 
@@ -151,7 +153,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
       );
     }
 
-    if (_profile == null) {
+    if (_profileModel == null) {
       return const Center(child: Text("Kullanıcı bilgileri yüklenemedi."));
     }
 
@@ -192,14 +194,26 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
         ),
         const Divider(),
         const SizedBox(height: 10),
-        buildInfoRow(Icons.person, "Ad Soyad", _nameController.text),
-        buildInfoRow(Icons.school, "Üniversite", _universityController.text),
-        buildInfoRow(
-            Icons.calendar_month, "Başlangıç Yılı", _startYearController.text),
-        buildInfoRow(Icons.calendar_month, "Bitiş Yılı(Tahmini)",
-            _graduationYearController.text),
-        buildInfoRow(Icons.book, "Bölüm", _departmentController.text),
-        buildInfoRow(Icons.timeline, "Sınıf", _classController.text),
+        CustomInfoRow(
+            icon: Icons.person, value: _nameController.text, label: 'Ad Soyad'),
+        CustomInfoRow(
+            icon: Icons.school,
+            value: _universityController.text,
+            label: 'Üniversite'),
+        CustomInfoRow(
+            icon: Icons.calendar_month,
+            value: _startYearController.text,
+            label: 'Başlangıç Yılı'),
+        CustomInfoRow(
+            icon: Icons.calendar_month,
+            value: _graduationYearController.text,
+            label: 'Bitiş Yılı(Tahmini'),
+        CustomInfoRow(
+            icon: Icons.book,
+            value: _departmentController.text,
+            label: 'Bölüm'),
+        CustomInfoRow(
+            icon: Icons.timeline, value: _classController.text, label: 'Sınıf'),
         const SizedBox(height: 16),
         const Text("Hakkımda",
             style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
@@ -236,7 +250,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
                 icon: const Icon(Icons.close, color: Colors.grey),
                 onPressed: () {
                   setState(() {
-                    if (_profile != null) _populateControllers(_profile!);
+                    if (_profileModel != null)
+                      _populateControllers(_profileModel!);
                     isEditing = false;
                   });
                 },
@@ -244,20 +259,30 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
             ],
           ),
           const SizedBox(height: 16),
-          buildTextField("Ad Soyad", _nameController, Icons.person),
+          CustomTextField(
+              controller: _nameController,
+              icon: Icons.person,
+              labelText: 'Ad Soyad'),
           const SizedBox(height: 16),
-          buildTextField("Üniversite", _universityController, Icons.school),
+          CustomTextField(
+              controller: _universityController,
+              icon: Icons.school,
+              labelText: 'Üniversite'),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: buildTextField("Başlangıç Yılı", _startYearController,
-                    Icons.calendar_month),
+                child: CustomTextField(
+                    controller: _startYearController,
+                    icon: Icons.calendar_month,
+                    labelText: 'Başlangıç Yılı'),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: buildTextField("Bitiş Yılı(Tahmini)",
-                    _graduationYearController, Icons.calendar_month),
+                child: CustomTextField(
+                    controller: _graduationYearController,
+                    icon: Icons.calendar_month,
+                    labelText: 'Bitiş Yılı(Tahmini)'),
               ),
               const SizedBox(height: 16),
             ],
@@ -266,16 +291,24 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
           Row(
             children: [
               Expanded(
-                  child: buildTextField(
-                      "Bölüm", _departmentController, Icons.book)),
+                child: CustomTextField(
+                    controller: _departmentController,
+                    icon: Icons.book,
+                    labelText: 'Bölüm'),
+              ),
               const SizedBox(width: 16),
               Expanded(
-                  child: buildTextField(
-                      "Sınıf", _classController, Icons.timeline)),
+                  child: CustomTextField(
+                      controller: _classController,
+                      icon: Icons.timeline,
+                      labelText: 'Sınıf')),
             ],
           ),
           const SizedBox(height: 16),
-          buildTextField("Hakkımda", _aboutController, Icons.info_outline,
+          CustomTextField(
+              controller: _aboutController,
+              icon: Icons.info_outline,
+              labelText: 'Hakkımda',
               maxLines: 4),
           const SizedBox(height: 24),
           Row(
@@ -284,7 +317,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
                 child: OutlinedButton(
                   onPressed: () {
                     setState(() {
-                      if (_profile != null) _populateControllers(_profile!);
+                      if (_profileModel != null)
+                        _populateControllers(_profileModel!);
                       isEditing = false;
                     });
                   },

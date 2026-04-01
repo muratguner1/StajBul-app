@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
+import 'package:staj_bul_demo/models/company_profile_model.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
@@ -68,13 +69,12 @@ class Auth {
           'createdAt': Timestamp.now(),
         });
       } else if (role == UserRoles.company) {
+        final CompanyProfileModel model =
+            CompanyProfileModel(uid: user.uid, companyName: name);
         await _firestore
             .collection(FirestoreCollections.companyProfiles)
             .doc(user.uid)
-            .set({
-          FirestoreStudentFields.fullName: name,
-          'createdAt': Timestamp.now(),
-        });
+            .set(model.toJson());
       } //sonra admin için de ekleme yap
 
       return userModel;
@@ -108,14 +108,19 @@ class Auth {
     await _firebaseAuth.signOut();
   }
 
-  Future<void> deleteAccount(String userId) async {
+  Future<void> deleteAccount(String userId, String roleCollection) async {
     LogService.info('Deleting account for user: $userId');
     try {
       await _firebaseAuth.currentUser?.delete();
-      await _firestore.collection('users').doc(userId).delete();
+      await _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .delete();
+      await _firestore.collection(roleCollection).doc(userId).delete();
+      await _firebaseAuth.signOut();
     } catch (e, stackTrace) {
       LogService.error(
-          'An error occured when user reset password!', e, stackTrace);
+          'An error occured when deleting  account!', e, stackTrace);
       rethrow;
     }
   }

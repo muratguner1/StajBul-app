@@ -2,8 +2,8 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile/skills_repository.dart';
-import 'package:staj_bul_demo/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class SkillsTab extends StatefulWidget {
   const SkillsTab({super.key});
@@ -14,7 +14,7 @@ class SkillsTab extends StatefulWidget {
 
 class _SkillsTabState extends State<SkillsTab>
     with AutomaticKeepAliveClientMixin {
-  final SkillsRepository _skillsRepository = SkillsRepository();
+  final ProfileRepository _profileRepository = ProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
   List<String> _skills = [];
@@ -40,7 +40,7 @@ class _SkillsTabState extends State<SkillsTab>
     final user = _commonRepository.getCurrentUser();
     if (user != null) {
       try {
-        final doc = await _commonRepository.getStudentProfile(user.uid);
+        final doc = await _profileRepository.getStudentProfile(user.uid);
         Map<String, dynamic>? data = doc?.data() as Map<String, dynamic>?;
 
         if (data != null) {
@@ -62,7 +62,7 @@ class _SkillsTabState extends State<SkillsTab>
     final user = _commonRepository.getCurrentUser();
     if (user != null) {
       try {
-        await _skillsRepository.updateSkillsAndLanguages(
+        await _profileRepository.updateSkillsAndLanguages(
             user.uid, _skills, _languages);
 
         setState(() => _isEditing = false);

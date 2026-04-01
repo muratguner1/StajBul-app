@@ -1,0 +1,35 @@
+Analyzing staj_bul_demo...                                      
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\widgets\student\home_page\build_profile_completition_card.dart:16:32 - deprecated_member_use
+   info - Unnecessary 'this.' qualifier - lib\models\post_model.dart:88:28 - unnecessary_this
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\login.dart:150:39 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\login.dart:157:39 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\login.dart:163:58 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\login.dart:169:56 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\login.dart:175:54 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\screens\authentication\login.dart:186:31 - avoid_print
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\register.dart:202:45 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\register.dart:207:64 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\register.dart:213:64 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\register.dart:220:62 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\reset_password.dart:100:62 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\reset_password.dart:116:55 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\authentication\reset_password.dart:118:62 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\company_screens\home\company_home.dart:121:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\company_screens\home\company_home.dart:176:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\company_screens\home\company_home.dart:178:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\company_screens\home\company_home.dart:205:46 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\company_screens\profile\company_settings.dart:90:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\company_screens\profile\company_settings.dart:96:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_profile.dart:120:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_profile.dart:140:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_profile_tabs\experiences_tab.dart:98:9 - use_build_context_synchronously
+   info - Statements in an if should be enclosed in a block - lib\screens\student_screens\student_profile\student_profile_tabs\personal_info_tab.dart:254:23 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\screens\student_screens\student_profile\student_profile_tabs\personal_info_tab.dart:321:25 - curly_braces_in_flow_control_structures
+   info - The local variable '_nameContorller' starts with an underscore - lib\screens\student_screens\student_profile\student_profile_tabs\resume_tab.dart:55:27 - no_leading_underscores_for_local_identifiers
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_settings.dart:66:32 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_settings.dart:71:32 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_settings.dart:90:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\student_screens\student_profile\student_settings.dart:96:28 - use_build_context_synchronously
+
+31 issues found. (ran in 3.6s)
