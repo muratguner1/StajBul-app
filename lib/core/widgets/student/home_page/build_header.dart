@@ -25,18 +25,6 @@ Widget buildHeader(String username) {
           ),
         ],
       ),
-      Container(
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12, blurRadius: 5, offset: Offset(0, 2))
-          ],
-        ),
-        child: Icon(Icons.notifications_outlined, color: Colors.black87),
-      ),
     ],
   );
 }

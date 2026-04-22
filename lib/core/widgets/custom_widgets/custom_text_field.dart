@@ -23,13 +23,7 @@ class CustomTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
-      validator: validator ??
-          (value) {
-            if (labelText != null && (value == null || value.trim().isEmpty)) {
-              return 'Lütfen $labelText girin.';
-            }
-            return null;
-          },
+      validator: validator,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

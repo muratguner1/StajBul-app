@@ -9,6 +9,7 @@ class FirestoreCollections {
 }
 
 class FirestoreStudentFields {
+  static const String studentId = 'studentId';
   static const String fullName = 'fullName';
   static const String university = 'university';
   static const String studentClass = 'class';
@@ -20,7 +21,7 @@ class FirestoreStudentFields {
   static const String skills = 'skills';
   static const String cvUrl = 'cvUrl';
   static const String isProfileComplete = 'isProfileComplete';
-  static const String savedListingIds = 'savedListingIds';
+  static const String savedPostIds = 'savedPostIds';
 }
 
 class FirestoreCompanyFields {
@@ -55,6 +56,7 @@ class FireStoreExperienceFields {
 }
 
 class FireStorePostFields {
+  static const String postId = 'postId';
   static const String positionTitle = 'positionTitle';
   static const String description = 'description';
   static const String qualifications = 'qualifications';
@@ -64,6 +66,13 @@ class FireStorePostFields {
   static const String tags = 'tags';
   static const String createdAt = 'createdAt';
   static const String isActive = 'isActive';
+}
+
+class FireStoreApplicationFields {
+  static const String applicationId = 'applicationId';
+  static const String status = 'status';
+  static const String appliedAt = 'appliedAt';
+  static const String matchScore = 'matchScore';
 }
 
 class FirebaseMessagingTopic {

@@ -238,6 +238,7 @@ class _StudentSettingsPageState extends State<StudentSettingsPage> {
           title: const Text('Ayarlar',
               style: TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
+          backgroundColor: Colors.blue[500],
           elevation: 0,
         ),
         body: ListView(

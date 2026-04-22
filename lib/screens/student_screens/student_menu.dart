@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:staj_bul_demo/screens/student_screens/student_home.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_applications/applications_page.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_home/student_home.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_profile.dart';
+import 'package:staj_bul_demo/screens/student_screens/student_saved/saved_post_page.dart';
 
 class StudentMenuPage extends StatefulWidget {
   const StudentMenuPage({super.key});
@@ -26,8 +28,8 @@ class _StudentMenuPageState extends State<StudentMenuPage> {
           });
         },
       ),
-      const Text('Saved'),
-      const Text('Applications'),
+      const SavedPostsPage(),
+      const StudentApplicationsPage(),
       const StudentProfilePage(),
     ];
   }

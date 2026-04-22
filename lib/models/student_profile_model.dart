@@ -14,7 +14,7 @@ class StudentProfileModel {
   final List<String>? skills;
   final String? cvUrl;
   final bool? isProfileComplete;
-  final List<String>? savedListingIds;
+  final List<String>? savedPostIds;
 
   StudentProfileModel({
     required this.uid,
@@ -29,7 +29,7 @@ class StudentProfileModel {
     this.skills,
     this.cvUrl,
     this.isProfileComplete,
-    this.savedListingIds,
+    this.savedPostIds,
   });
 
   StudentProfileModel copyWith({
@@ -45,7 +45,7 @@ class StudentProfileModel {
     List<String>? skills,
     String? cvUrl,
     bool? isProfileComplete,
-    List<String>? savedListingIds,
+    List<String>? savedPostIds,
   }) {
     return StudentProfileModel(
       uid: uid ?? this.uid,
@@ -60,7 +60,7 @@ class StudentProfileModel {
       skills: skills ?? this.skills,
       cvUrl: cvUrl ?? this.cvUrl,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
-      savedListingIds: savedListingIds ?? this.savedListingIds,
+      savedPostIds: savedPostIds ?? this.savedPostIds,
     );
   }
 
@@ -80,8 +80,8 @@ class StudentProfileModel {
       cvUrl: data[FirestoreStudentFields.cvUrl],
       isProfileComplete:
           data[FirestoreStudentFields.isProfileComplete] ?? false,
-      savedListingIds:
-          List<String>.from(data[FirestoreStudentFields.savedListingIds] ?? []),
+      savedPostIds:
+          List<String>.from(data[FirestoreStudentFields.savedPostIds] ?? []),
     );
   }
 
@@ -98,7 +98,7 @@ class StudentProfileModel {
       FirestoreStudentFields.skills: skills,
       FirestoreStudentFields.cvUrl: cvUrl,
       FirestoreStudentFields.isProfileComplete: isProfileComplete,
-      FirestoreStudentFields.savedListingIds: savedListingIds,
+      FirestoreStudentFields.savedPostIds: savedPostIds,
     };
   }
 }
