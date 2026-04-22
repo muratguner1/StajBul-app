@@ -26,15 +26,7 @@ class _ResumeTabState extends State<ResumeTab>
   @override
   bool get wantKeepAlive => true;
 
-  Future<void> _pickAndUploadCV(int currentCount) async {
-    if (currentCount >= 2) {
-      AwesomeSnackBar.show(context,
-          title: '',
-          message: 'En fazla 2 adet CV yükleyebilirsiniz.',
-          contentType: ContentType.failure);
-      return;
-    }
-
+  Future<void> _pickAndUploadCV() async {
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -42,7 +34,6 @@ class _ResumeTabState extends State<ResumeTab>
 
     if (result != null && result.files.single.path != null) {
       final File file = File(result.files.single.path!);
-
       String? customName = await _showNameDialog();
 
       if (customName == null || customName.isEmpty) return;
@@ -52,14 +43,14 @@ class _ResumeTabState extends State<ResumeTab>
   }
 
   Future<String?> _showNameDialog() async {
-    TextEditingController _nameContorller = TextEditingController();
+    TextEditingController nameController = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("CV'ni İsimlendir"),
           content: TextField(
-            controller: _nameContorller,
+            controller: nameController,
             decoration: const InputDecoration(
                 hintText: "Örn: Yazılım CV'im", border: OutlineInputBorder()),
             autofocus: true,
@@ -71,7 +62,7 @@ class _ResumeTabState extends State<ResumeTab>
             ),
             ElevatedButton(
               onPressed: () =>
-                  Navigator.pop(context, _nameContorller.text.trim()),
+                  Navigator.pop(context, nameController.text.trim()),
               child: const Text('Yükle'),
             ),
           ],
@@ -87,18 +78,18 @@ class _ResumeTabState extends State<ResumeTab>
 
     try {
       String fileName = "${DateTime.now().millisecondsSinceEpoch}.pdf";
-
-      _profileRepository.uploadResume(user.uid, fileName, file, customName);
+      await _profileRepository.uploadResume(
+          user.uid, fileName, file, customName);
 
       if (!mounted) return;
       AwesomeSnackBar.show(context,
-          title: '',
+          title: 'Başarılı',
           message: 'CV başarıyla yüklendi',
           contentType: ContentType.success);
     } catch (e) {
       if (!mounted) return;
       AwesomeSnackBar.show(context,
-          title: '',
+          title: 'Hata',
           message: 'Yükleme hatası',
           contentType: ContentType.failure);
     } finally {
@@ -106,19 +97,17 @@ class _ResumeTabState extends State<ResumeTab>
     }
   }
 
-  Future<void> _deleteResume(Map<String, dynamic> resumeItem) async {
+  Future<void> _deleteResume(String storagePath) async {
     setState(() => isUploading = true);
-
     final user = _commonRepository.getCurrentUser();
-
     if (user == null) return;
 
     try {
-      _profileRepository.deleteResume(resumeItem, user.uid);
+      await _profileRepository.deleteResume(storagePath, user.uid);
     } catch (e) {
       if (!mounted) return;
       AwesomeSnackBar.show(context,
-          title: '',
+          title: 'Hata',
           message: 'Silinirken hata oluştu!',
           contentType: ContentType.failure);
     } finally {
@@ -131,7 +120,7 @@ class _ResumeTabState extends State<ResumeTab>
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
       AwesomeSnackBar.show(context,
-          title: '',
+          title: 'Hata',
           message: 'PDF açılamadı',
           contentType: ContentType.failure);
     }
@@ -149,23 +138,23 @@ class _ResumeTabState extends State<ResumeTab>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        List<dynamic> resumes = [];
+
+        Map<String, dynamic>? resumeData;
 
         if (snapshot.hasData && snapshot.data!.data() != null) {
           final data = snapshot.data!.data() as Map<String, dynamic>;
-          if (data['resumes'] != null) {
-            resumes = data['resumes'] as List<dynamic>;
+          if (data['resumeData'] != null) {
+            resumeData = data['resumeData'] as Map<String, dynamic>;
           }
         }
+
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              if (resumes.length < 2)
+              if (resumeData == null)
                 InkWell(
-                  onTap: isUploading
-                      ? null
-                      : () => _pickAndUploadCV(resumes.length),
+                  onTap: isUploading ? null : _pickAndUploadCV,
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -184,11 +173,11 @@ class _ResumeTabState extends State<ResumeTab>
                           const Icon(Icons.cloud_upload_outlined,
                               size: 40, color: Colors.blueAccent),
                           const SizedBox(height: 8),
-                          const Text("Yeni Özgeçmiş (PDF) Yükle",
+                          const Text("Özgeçmiş (PDF) Yükle",
                               style: TextStyle(
                                   color: Colors.blueAccent,
                                   fontWeight: FontWeight.bold)),
-                          Text("${resumes.length}/2 Dolu",
+                          Text("0/1 Dolu",
                               style: TextStyle(
                                   color: Colors.grey.shade600, fontSize: 12)),
                         ]
@@ -196,7 +185,7 @@ class _ResumeTabState extends State<ResumeTab>
                     ),
                   ),
                 )
-              else
+              else ...[
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
@@ -205,64 +194,46 @@ class _ResumeTabState extends State<ResumeTab>
                       borderRadius: BorderRadius.circular(8)),
                   child: const Center(
                     child: Text(
-                      "Maksimum CV sayısına ulaştınız (2/2).",
-                      style: TextStyle(color: Colors.grey),
+                      "Maksimum CV sayısına ulaştınız (1/1). Yeni yükleme yapmak için mevcut CV'nizi silmelisiniz.",
+                      style: TextStyle(color: Colors.grey, fontSize: 13),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-              const SizedBox(height: 24),
-              if (resumes.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Henüz CV yüklenmemiş.",
-                    style: TextStyle(color: Colors.grey),
+                const SizedBox(height: 24),
+                Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: const Icon(Icons.picture_as_pdf,
+                        color: Colors.redAccent, size: 32),
+                    title: Text(resumeData['name'] ?? 'İsimsiz CV',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                        "Yüklenme: ${DateFormat('dd/MM/yyyy').format((resumeData['uploadedAt'] as Timestamp).toDate())}"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.visibility,
+                              color: Colors.blueGrey),
+                          onPressed: () => _openResume(resumeData!['url']),
+                          tooltip: "Görüntüle",
+                        ),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.delete, color: Colors.redAccent),
+                          onPressed: () =>
+                              _deleteResume(resumeData!['storagePath']),
+                          tooltip: "Sil",
+                        ),
+                      ],
+                    ),
                   ),
                 )
-              else
-                Expanded(
-                    child: ListView.builder(
-                  itemCount: resumes.length,
-                  itemBuilder: (context, index) {
-                    final resume = resumes[index] as Map<String, dynamic>;
-                    final Timestamp? date = resume['uploadedAt'];
-                    final dateStr = date != null
-                        ? DateFormat('dd/MM/yyyy').format(date.toDate())
-                        : '';
-
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 2,
-                      child: ListTile(
-                        leading: const Icon(Icons.picture_as_pdf,
-                            color: Colors.redAccent, size: 32),
-                        title: Text(resume['name'] ?? 'İsimsiz CV',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text("Yüklenme: $dateStr"),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.visibility,
-                                  color: Colors.blueGrey),
-                              onPressed: () => _openResume(resume['url']),
-                              tooltip: "Görüntüle",
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: Colors.redAccent),
-                              onPressed: () => _deleteResume(resume),
-                              tooltip: "Sil",
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ))
+              ]
             ],
           ),
         );

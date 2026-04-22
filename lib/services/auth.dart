@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/company_profile_model.dart';
+import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
@@ -61,13 +62,26 @@ class Auth {
           .set(userModel.toJson());
 
       if (role == UserRoles.student) {
+        final studentModel = StudentProfileModel(
+          uid: userModel.uid,
+          fullName: name,
+          university: null,
+          department: null,
+          studentClass: null,
+          startYear: null,
+          graduationYear: null,
+          profileImageUrl: null,
+          aboutMe: null,
+          skills: null,
+          cvUrl: null,
+          isProfileComplete: null,
+          savedPostIds: null,
+        );
+
         await _firestore
             .collection(FirestoreCollections.studentProfiles)
             .doc(user.uid)
-            .set({
-          FirestoreStudentFields.fullName: name,
-          'createdAt': Timestamp.now(),
-        });
+            .set(studentModel.toJson());
       } else if (role == UserRoles.company) {
         final CompanyProfileModel model =
             CompanyProfileModel(uid: user.uid, companyName: name);

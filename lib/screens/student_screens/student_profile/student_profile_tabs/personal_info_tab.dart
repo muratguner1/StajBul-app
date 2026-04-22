@@ -250,8 +250,10 @@ class _PersonalInfoTabState extends State<PersonalInfoTab>
                 icon: const Icon(Icons.close, color: Colors.grey),
                 onPressed: () {
                   setState(() {
-                    if (_profileModel != null)
+                    if (_profileModel != null) {
                       _populateControllers(_profileModel!);
+                    }
+
                     isEditing = false;
                   });
                 },

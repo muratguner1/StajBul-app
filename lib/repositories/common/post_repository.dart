@@ -21,14 +21,55 @@ class PostRepository {
   }
 
   Stream<List<PostModel>> getPostsStream(String companyId) {
-    return _firestore
-        .collection(FirestoreCollections.posts)
-        .where(FirestoreCompanyFields.companyId, isEqualTo: companyId)
-        .orderBy(FireStorePostFields.createdAt, descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) => PostModel.fromSnapshot(doc)).toList();
-    });
+    LogService.info('Getting all posts stream');
+    try {
+      return _firestore
+          .collection(FirestoreCollections.posts)
+          .where(FirestoreCompanyFields.companyId, isEqualTo: companyId)
+          .orderBy(FireStorePostFields.createdAt, descending: true)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) => PostModel.fromSnapshot(doc)).toList();
+      });
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An arror occured when getting posts stream!', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Stream<List<PostModel>> getActivePostsStream() {
+    LogService.info('Getting active posts stream');
+    try {
+      return _firestore
+          .collection(FirestoreCollections.posts)
+          .where(FireStorePostFields.isActive, isEqualTo: true)
+          .orderBy(FireStorePostFields.createdAt, descending: true)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) => PostModel.fromSnapshot(doc)).toList();
+      });
+    } catch (e, stackTrace) {
+      LogService.error(
+          'An arror occured when getting active posts stream!', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<PostModel?> getPostById(String postId) async {
+    LogService.info('Getting post: $postId');
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(postId)
+          .get();
+      if (doc.exists) {
+        return PostModel.fromSnapshot(doc);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> updatePosts(PostModel model) async {
@@ -77,12 +118,13 @@ class PostRepository {
   }
 
   Stream<int> getActivePostCountStream(String companyId) {
+    LogService.info('Getting active post count stream.');
     try {
       return _firestore
           .collection(FirestoreCollections.posts)
           .where(FirestoreCompanyFields.companyId, isEqualTo: companyId)
           .where(FireStorePostFields.isActive, isEqualTo: true)
-          .snapshots() // .count().get() yerine canlı yayına (snapshots) geçtik
+          .snapshots()
           .map((snapshot) => snapshot.docs.length);
     } catch (e, stackTrace) {
       LogService.error(

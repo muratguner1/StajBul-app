@@ -46,6 +46,19 @@ class ProfileRepository {
     }
   }
 
+  Stream<StudentProfileModel?> getStudentProfileStream(String uid) {
+    return _firestore
+        .collection(FirestoreCollections.studentProfiles)
+        .doc(uid)
+        .snapshots()
+        .map((snap) {
+      if (snap.exists) {
+        return StudentProfileModel.fromSnapshot(snap);
+      }
+      return null;
+    });
+  }
+
   Future<void> updateStudentProfile(StudentProfileModel model) async {
     LogService.info("Updating ${model.fullName}'s profile ");
     try {
@@ -223,7 +236,8 @@ class ProfileRepository {
       await ref.putFile(file);
       final String downloadUrl = await ref.getDownloadURL();
 
-      final newResume = {
+      // UI'da (isim, tarih vs.) göstermek için oluşturduğumuz obje
+      final resumeData = {
         'name': resumeName,
         'url': downloadUrl,
         'storagePath': ref.fullPath,
@@ -234,7 +248,9 @@ class ProfileRepository {
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        'resumes': FieldValue.arrayUnion([newResume])
+        FirestoreStudentFields.cvUrl:
+            downloadUrl, // Senin modelin her yerden buna ulaşacak
+        'resumeData': resumeData // ResumeTab sayfasının kullanacağı detaylar
       });
     } catch (e, stackTrace) {
       LogService.error(
@@ -242,19 +258,21 @@ class ProfileRepository {
     }
   }
 
-  Future<void> deleteResume(
-      Map<String, dynamic> resumeItem, String userId) async {
+  // Artık sadece storagePath ve userId alması yeterli
+  Future<void> deleteResume(String storagePath, String userId) async {
     LogService.info('Deleting resume');
     try {
-      if (resumeItem['storagePath'] != null) {
-        await _storage.ref(resumeItem['storagePath']).delete();
+      if (storagePath.isNotEmpty) {
+        await _storage.ref(storagePath).delete(); // Storage'dan siliyoruz
       }
 
       await _firestore
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        'resumes': FieldValue.arrayRemove([resumeItem])
+        FirestoreStudentFields.cvUrl:
+            FieldValue.delete(), // cvUrl alanını tamamen yok et
+        'resumeData': FieldValue.delete() // Detay objesini tamamen yok et
       });
     } catch (e, stackTrace) {
       LogService.error('An error occured when deleting resume', e, stackTrace);

@@ -23,7 +23,6 @@ class _CompanyMenuPageState extends State<CompanyMenuPage> {
     _pages = [
       CompanyHomePage(),
       CompanyPostsPage(),
-      Text('Mesalar'),
       CompanyProfilePage(),
     ];
   }
@@ -49,7 +48,7 @@ class _CompanyMenuPageState extends State<CompanyMenuPage> {
           BottomNavigationBarItem(
               icon: Icon(LucideIcons.home), label: 'Ana sayfa'),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'İlanlar'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Mesajlar'),
+          // BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Mesajlar'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),

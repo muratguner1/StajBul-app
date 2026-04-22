@@ -231,6 +231,11 @@ class _StudentProfilePageState extends State<StudentProfilePage>
             icon: Icon(Icons.settings),
           ),
         ],
+        title: const Text('Profilim',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: Colors.blue[500],
+        elevation: 0,
       ),
       body: Column(
         children: [

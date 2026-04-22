@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_section_header.dart';
+import 'package:staj_bul_demo/models/application_model.dart';
+import 'package:staj_bul_demo/models/post_model.dart';
+import 'package:staj_bul_demo/repositories/common/application_repository.dart';
+import 'package:staj_bul_demo/repositories/common/post_repository.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
-import 'package:staj_bul_demo/repositories/company/post_repository.dart';
 import 'package:staj_bul_demo/repositories/company/profile_repository.dart';
+import 'package:staj_bul_demo/screens/company_screens/home/application_detail.dart';
 import 'package:staj_bul_demo/screens/company_screens/posts/add_edit_post_page.dart';
 
 class CompanyHomePage extends StatefulWidget {
@@ -16,16 +21,27 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
   final CommonRepository _commonRepository = CommonRepository();
   final ProfileRepository _profileRepository = ProfileRepository();
   final PostRepository _postRepository = PostRepository();
+  final ApplicationRepository _appRepository = ApplicationRepository();
 
   String _companyName = "Şirket";
   bool _isLoading = true;
   String? _companyId;
+
+  late Stream<List<ApplicationModel>> _applicationsStream;
 
   @override
   void initState() {
     super.initState();
     final user = _commonRepository.getCurrentUser();
     _companyId = user?.uid;
+
+    if (_companyId != null) {
+      _applicationsStream =
+          _appRepository.getCompanyApplicationsStream(_companyId!);
+    } else {
+      _applicationsStream = const Stream.empty();
+    }
+
     _loadCompanyData();
   }
 
@@ -42,7 +58,6 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
         }
       }
     } catch (e) {
-      //
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -77,12 +92,11 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
             Text(
               _companyName,
               style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 24),
-
             const CustomSectionHeader(title: 'Genel Bakış'),
             const SizedBox(height: 8),
             Row(
@@ -101,22 +115,33 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: _buildStatCard(Icons.people_outline, 'Yeni Başvuru',
-                        '12', Colors.green)),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: _buildStatCard(
-                        Icons.mail_outline, 'Mesajlar', '5', Colors.blue)),
+                  child: StreamBuilder<List<ApplicationModel>>(
+                    stream: _applicationsStream,
+                    builder: (context, snapshot) {
+                      final allApps = snapshot.data ?? [];
+                      final pendingCount = allApps
+                          .where((app) => app.status == 'Başvuruldu')
+                          .length;
+
+                      return _buildStatCard(
+                          Icons.people_outline,
+                          'Bekleyen Başvuru',
+                          pendingCount.toString(),
+                          Colors.green);
+                    },
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 32),
-
             const CustomSectionHeader(title: 'Hızlı İşlemler'),
             const SizedBox(height: 8),
             InkWell(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddEditPostPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddEditPostPage()));
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -161,17 +186,40 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
               ),
             ),
             const SizedBox(height: 32),
-
-            //TODO: Sahte veriler, sonra düzenle
             const CustomSectionHeader(title: 'Son Başvurular'),
             const SizedBox(height: 8),
-            _buildRecentApplicationTile(
-                'Murat', 'Flutter Geliştirici', '2 saat önce'),
-            _buildRecentApplicationTile(
-                'Ayşe', 'Backend Stajyeri', '5 saat önce'),
-            _buildRecentApplicationTile(
-                'Ahmet', 'UI/UX Tasarımcı', '1 gün önce'),
+            StreamBuilder<List<ApplicationModel>>(
+              stream: _applicationsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
+                final applications = snapshot.data ?? [];
+
+                if (applications.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text('Henüz hiç başvuru almadınız.',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                  );
+                }
+
+                final recentApplications = applications.take(4).toList();
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: recentApplications.length,
+                  itemBuilder: (context, index) {
+                    final app = recentApplications[index];
+                    return _buildRecentApplicationTile(app);
+                  },
+                );
+              },
+            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -204,28 +252,64 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     );
   }
 
-  // Son Başvurular Liste Elemanı Widget'ı
-  Widget _buildRecentApplicationTile(
-      String studentName, String postTitle, String time) {
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blueAccent.withOpacity(0.1),
-          child: Text(studentName[0],
-              style: const TextStyle(
-                  color: Colors.blueAccent, fontWeight: FontWeight.bold)),
-        ),
-        title: Text(studentName,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('$postTitle ilanına başvurdu.'),
-        trailing: Text(time,
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
-        onTap: () {
-          // TODO: Başvuru detayına git
-        },
+  Widget _buildRecentApplicationTile(ApplicationModel app) {
+    final String formattedDate =
+        DateFormat('dd.MM.yyyy HH:mm').format(app.appliedAt.toDate());
+
+    return FutureBuilder<PostModel?>(
+      future: _postRepository.getPostById(app.postId),
+      builder: (context, snapshot) {
+        String postTitle = "Yükleniyor...";
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          postTitle = snapshot.data?.positionTitle ?? "Bilinmeyen İlan";
+        }
+
+        return Card(
+          elevation: 1,
+          margin: const EdgeInsets.only(bottom: 12),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blueAccent.withOpacity(0.1),
+              child: Text(
+                  app.studentName.isNotEmpty
+                      ? app.studentName[0].toUpperCase()
+                      : '?',
+                  style: const TextStyle(
+                      color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+            ),
+            title: Text(app.studentName,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('$postTitle ilanına başvurdu. ($formattedDate)'),
+            trailing: _buildStatusIndicator(app.status),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ApplicationDetailPage(application: app)));
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusIndicator(String status) {
+    Color color = Colors.grey;
+    if (status == 'Başvuruldu') color = Colors.blue;
+    if (status == 'İncelendi') color = Colors.orange;
+    if (status == 'Kabul Edildi') color = Colors.green;
+    if (status == 'Reddedildi') color = Colors.red;
+
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
       ),
     );
   }

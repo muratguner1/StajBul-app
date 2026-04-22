@@ -1,10 +1,13 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
+import 'package:staj_bul_demo/models/application_model.dart'; // Eklendi
 import 'package:staj_bul_demo/models/post_model.dart';
+import 'package:staj_bul_demo/repositories/common/application_repository.dart'; // Eklendi
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
-import 'package:staj_bul_demo/repositories/company/post_repository.dart';
+import 'package:staj_bul_demo/repositories/common/post_repository.dart';
 import 'package:staj_bul_demo/screens/company_screens/posts/add_edit_post_page.dart';
+import 'package:staj_bul_demo/screens/company_screens/posts/post_detail_page.dart'; // Yeni sayfamızın importu
 
 class CompanyPostsPage extends StatefulWidget {
   const CompanyPostsPage({super.key});
@@ -16,9 +19,10 @@ class CompanyPostsPage extends StatefulWidget {
 class _CompanyPostsPageState extends State<CompanyPostsPage> {
   final PostRepository _postRepository = PostRepository();
   final CommonRepository _commonRepository = CommonRepository();
+  final ApplicationRepository _appRepository =
+      ApplicationRepository(); // Eklendi
 
   late final String? companyId;
-  //late int? applicationCount;
 
   @override
   void initState() {
@@ -26,10 +30,6 @@ class _CompanyPostsPageState extends State<CompanyPostsPage> {
     final user = _commonRepository.getCurrentUser();
     companyId = user?.uid;
   }
-
-  // void _setApplicationCount(){
-
-  // }
 
   void _showDeleteDialog(PostModel model) {
     showDialog(
@@ -109,7 +109,7 @@ class _CompanyPostsPageState extends State<CompanyPostsPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AddEditPostPage()));
+              MaterialPageRoute(builder: (context) => const AddEditPostPage()));
         },
         backgroundColor: Colors.blueAccent,
         icon: const Icon(Icons.add, color: Colors.white),
@@ -164,104 +164,125 @@ class _CompanyPostsPageState extends State<CompanyPostsPage> {
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    model.positionTitle,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CompanyPostDetailsPage(post: model),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      model.positionTitle,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: model.isActive
-                        ? Colors.green.shade100
-                        : Colors.red.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    model.isActive ? 'Yayında' : 'Pasif',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
                       color: model.isActive
-                          ? Colors.green.shade800
-                          : Colors.red.shade800,
+                          ? Colors.green.shade100
+                          : Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      model.isActive ? 'Yayında' : 'Pasif',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: model.isActive
+                            ? Colors.green.shade800
+                            : Colors.red.shade800,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.work_outline, size: 16, color: Colors.grey.shade600),
-                const SizedBox(width: 4),
-                Text(model.workType,
-                    style: TextStyle(color: Colors.grey.shade700)),
-                const SizedBox(width: 16),
-                Icon(Icons.location_on_outlined,
-                    size: 16, color: Colors.grey.shade600),
-                const SizedBox(width: 4),
-                Text(model.location,
-                    style: TextStyle(color: Colors.grey.shade700)),
-              ],
-            ),
-            SizedBox(height: 5),
-            Row(
-              children: [
-                Text('Başvuru sayısı: 35463'), //TODO: burayı düzelt sonra
-              ],
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text("Yayına Al:",
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade700)),
-                    Switch(
-                      value: model.isActive,
-                      activeThumbColor: Colors.blueAccent,
-                      onChanged: (val) => _toggleStatus(model),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                      tooltip: 'Düzenle',
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AddEditPostPage(model: model)));
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      tooltip: 'Sil',
-                      onPressed: () => _showDeleteDialog(model),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.work_outline,
+                      size: 16, color: Colors.grey.shade600),
+                  const SizedBox(width: 4),
+                  Text(model.workType,
+                      style: TextStyle(color: Colors.grey.shade700)),
+                  const SizedBox(width: 16),
+                  Icon(Icons.location_on_outlined,
+                      size: 16, color: Colors.grey.shade600),
+                  const SizedBox(width: 4),
+                  Text(model.location,
+                      style: TextStyle(color: Colors.grey.shade700)),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  StreamBuilder<List<ApplicationModel>>(
+                    stream:
+                        _appRepository.getPostApplicationsStream(model.postId),
+                    builder: (context, snapshot) {
+                      final count = snapshot.data?.length ?? 0;
+                      return Text('Başvuru sayısı: $count',
+                          style: const TextStyle(fontWeight: FontWeight.w500));
+                    },
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text("Yayına Al:",
+                          style: TextStyle(
+                              fontSize: 13, color: Colors.grey.shade700)),
+                      Switch(
+                        value: model.isActive,
+                        activeThumbColor: Colors.blueAccent,
+                        onChanged: (val) => _toggleStatus(model),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                        tooltip: 'Düzenle',
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      AddEditPostPage(model: model)));
+                        },
+                      ),
+                      IconButton(
+                        icon:
+                            const Icon(Icons.delete_outline, color: Colors.red),
+                        tooltip: 'Sil',
+                        onPressed: () => _showDeleteDialog(model),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
