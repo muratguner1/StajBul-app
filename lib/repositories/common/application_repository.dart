@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/models/application_model.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
+import 'package:staj_bul_demo/models/post_model.dart';
+import 'package:staj_bul_demo/models/student_profile_model.dart';
+import 'package:staj_bul_demo/core/services/ai_service.dart';
 
 class ApplicationRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -99,5 +102,30 @@ class ApplicationRepository {
         .map((snapshot) => snapshot.docs
             .map((doc) => ApplicationModel.fromSnapshot(doc))
             .toList());
+  }
+
+  final AIService _aiService = AIService();
+  Future<void> calculateAndSaveAIScore(
+      ApplicationModel app, PostModel post, StudentProfileModel student) async {
+    try {
+      final aiResult =
+          await _aiService.getMatchAnalysis(post: post, student: student);
+
+      final double score = (aiResult['score'] as num).toDouble();
+      final String explanation =
+          aiResult['explanation'] ?? 'Açıklama bulunamadı.';
+
+      if (score > 0.0) {
+        await _firestore
+            .collection(FirestoreCollections.applications)
+            .doc(app.applicationId)
+            .update({
+          FireStoreApplicationFields.matchScore: score,
+          FireStoreApplicationFields.aiExplanation: explanation,
+        });
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }

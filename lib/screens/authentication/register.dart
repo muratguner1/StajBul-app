@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
-import 'package:staj_bul_demo/services/auth.dart';
+import 'package:staj_bul_demo/core/services/auth.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

@@ -7,7 +7,8 @@ import 'package:staj_bul_demo/firebase_options.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/providers/theme_provider.dart';
 import 'package:staj_bul_demo/screens/splash_screen.dart';
-import 'package:staj_bul_demo/services/auth.dart';
+import 'package:staj_bul_demo/core/services/auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -16,6 +17,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

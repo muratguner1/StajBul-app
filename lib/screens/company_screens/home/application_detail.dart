@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:staj_bul_demo/core/services/mail_service.dart';
+import 'package:staj_bul_demo/models/company_profile_model.dart';
 import 'package:staj_bul_demo/repositories/common/application_repository.dart';
-import 'package:url_launcher/url_launcher.dart'; // URL açmak için eklendi
+import 'package:staj_bul_demo/repositories/company/company_profile_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:staj_bul_demo/models/application_model.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 
 class ApplicationDetailPage extends StatefulWidget {
   final ApplicationModel application;
@@ -17,10 +20,14 @@ class ApplicationDetailPage extends StatefulWidget {
 }
 
 class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _studentProfileRepo =
+      StudentProfileRepository();
+  final CompanyProfileRepository _companyProfileRepo =
+      CompanyProfileRepository();
   final ApplicationRepository _appRepository = ApplicationRepository();
 
   StudentProfileModel? _studentProfile;
+  CompanyProfileModel? _companyProfile;
   bool _isLoading = true;
   late String _currentStatus;
 
@@ -33,12 +40,14 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
   Future<void> _loadStudentDetailsAndMarkAsReviewed() async {
     try {
-      final profile = await _profileRepository
+      final studentProfile = await _studentProfileRepo
           .getStudentProfileModel(widget.application.studentId);
-
+      final companyProfile = await _companyProfileRepo
+          .getCompanyProfileModel(widget.application.companyId);
       if (mounted) {
         setState(() {
-          _studentProfile = profile;
+          _studentProfile = studentProfile;
+          _companyProfile = companyProfile;
           _isLoading = false;
         });
       }
@@ -64,6 +73,16 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     try {
       await _appRepository.updateApplicationStatus(
           widget.application.applicationId, newStatus);
+
+      if (_studentProfile != null && _studentProfile!.email != null) {
+        MailService().sendStatusMail(
+          toEmail: _studentProfile!.email!,
+          studentName: widget.application.studentName,
+          companyName: _companyProfile!.companyName,
+          status: newStatus,
+        );
+      }
+
       if (mounted) {
         setState(() {
           _currentStatus = newStatus;
@@ -179,7 +198,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Colors.blue.shade900, Colors.blueAccent],
@@ -190,31 +209,62 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                       boxShadow: [
                         BoxShadow(
                           color: Colors.blue.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.psychology,
-                            color: Colors.white, size: 40),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Yapay Zeka Uyum Oranı',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        Row(
+                          children: [
+                            const Icon(Icons.psychology,
+                                color: Colors.white, size: 28),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Yapay Zeka Analizi',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                widget.application.matchScore != null &&
+                                        widget.application.matchScore! > 0
+                                    ? '%${(widget.application.matchScore! * 100).toInt()}'
+                                    : '-%',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.application.matchScore != null &&
-                                  widget.application.matchScore! > 0
-                              ? '%${(widget.application.matchScore! * 100).toInt()}'
-                              : 'Hesaplanıyor...',
-                          style: const TextStyle(
+                        if (widget.application.aiExplanation != null &&
+                            widget.application.aiExplanation!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          const Divider(color: Colors.white24, height: 1),
+                          const SizedBox(height: 12),
+                          Text(
+                            widget.application.aiExplanation!,
+                            style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold),
-                        ),
+                              fontSize: 16,
+                              height: 1.4,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

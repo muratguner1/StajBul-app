@@ -11,7 +11,7 @@ import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_settings_tile.d
 import 'package:staj_bul_demo/providers/theme_provider.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
 import 'package:staj_bul_demo/screens/authentication/login.dart';
-import 'package:staj_bul_demo/services/auth.dart';
+import 'package:staj_bul_demo/core/services/auth.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class CompanySettingsPage extends StatefulWidget {

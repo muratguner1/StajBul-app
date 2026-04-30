@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,7 +19,8 @@ class ResumeTab extends StatefulWidget {
 
 class _ResumeTabState extends State<ResumeTab>
     with AutomaticKeepAliveClientMixin {
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
   bool isUploading = false;
 

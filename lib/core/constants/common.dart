@@ -11,6 +11,7 @@ class FirestoreCollections {
 class FirestoreStudentFields {
   static const String studentId = 'studentId';
   static const String fullName = 'fullName';
+  static const String email = 'email';
   static const String university = 'university';
   static const String studentClass = 'class';
   static const String department = 'department';
@@ -73,6 +74,7 @@ class FireStoreApplicationFields {
   static const String status = 'status';
   static const String appliedAt = 'appliedAt';
   static const String matchScore = 'matchScore';
+  static const String aiExplanation = 'aiExplanation';
 }
 
 class FirebaseMessagingTopic {

@@ -9,7 +9,7 @@ import 'package:staj_bul_demo/models/post_model.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/repositories/common/post_repository.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_home/post_detail_page.dart';
 
 class StudentHomePage extends StatefulWidget {
@@ -22,7 +22,8 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage> {
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
 
   StudentProfileModel? _studentModel;
   double _completionRate = 0.0;

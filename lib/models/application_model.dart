@@ -11,6 +11,7 @@ class ApplicationModel {
 
   final String studentName;
   final double? matchScore;
+  final String? aiExplanation;
   final String studentUniversity;
   final List<String> studentSkills;
   final String? studentCvUrl;
@@ -27,6 +28,7 @@ class ApplicationModel {
     required this.matchScore,
     required this.studentSkills,
     this.studentCvUrl,
+    this.aiExplanation,
   });
 
   factory ApplicationModel.fromSnapshot(DocumentSnapshot snap) {
@@ -42,6 +44,7 @@ class ApplicationModel {
       studentUniversity: data[FirestoreStudentFields.university] ?? '',
       studentCvUrl: data[FirestoreStudentFields.cvUrl] ?? '',
       matchScore: data[FireStoreApplicationFields.matchScore] ?? 0.0,
+      aiExplanation: data[FireStoreApplicationFields.aiExplanation] ?? '',
       studentSkills:
           List<String>.from(data[FirestoreStudentFields.skills] ?? []),
     );
@@ -58,6 +61,7 @@ class ApplicationModel {
       FirestoreStudentFields.university: studentUniversity,
       FirestoreStudentFields.cvUrl: studentCvUrl,
       FireStoreApplicationFields.matchScore: matchScore,
+      FireStoreApplicationFields.aiExplanation: aiExplanation,
       FirestoreStudentFields.skills: studentSkills,
     };
   }

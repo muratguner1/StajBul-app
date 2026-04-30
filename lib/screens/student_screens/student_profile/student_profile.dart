@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_profile_tabs/contact_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_profile_tabs/experiences_tab.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_profile/student_profile_tabs/personal_info_tab.dart';
@@ -25,7 +25,8 @@ class StudentProfilePage extends StatefulWidget {
 class _StudentProfilePageState extends State<StudentProfilePage>
     with SingleTickerProviderStateMixin {
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
 
   String? _profileUrl;
   String? _defaultPhotoUrl;

@@ -2,7 +2,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class SkillsTab extends StatefulWidget {
@@ -14,7 +14,8 @@ class SkillsTab extends StatefulWidget {
 
 class _SkillsTabState extends State<SkillsTab>
     with AutomaticKeepAliveClientMixin {
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
   final CommonRepository _commonRepository = CommonRepository();
 
   List<String> _skills = [];

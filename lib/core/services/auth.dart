@@ -65,6 +65,7 @@ class Auth {
         final studentModel = StudentProfileModel(
           uid: userModel.uid,
           fullName: name,
+          email: email,
           university: null,
           department: null,
           studentClass: null,

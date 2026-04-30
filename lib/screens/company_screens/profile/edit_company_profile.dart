@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_text_field.dart';
 import 'package:staj_bul_demo/models/company_profile_model.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
-import 'package:staj_bul_demo/repositories/company/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/company/company_profile_repository.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class EditCompanyProfilePage extends StatefulWidget {
@@ -18,7 +18,8 @@ class _EditCompanyProfilePageState extends State<EditCompanyProfilePage> {
   bool isLoading = false;
 
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final CompanyProfileRepository _profileRepository =
+      CompanyProfileRepository();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _industryController = TextEditingController();
