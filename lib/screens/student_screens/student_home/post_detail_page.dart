@@ -7,7 +7,7 @@ import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/models/application_model.dart';
 import 'package:staj_bul_demo/repositories/common/application_repository.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -20,8 +20,9 @@ class PostDetailPage extends StatefulWidget {
 
 class _PostDetailPageState extends State<PostDetailPage> {
   final ApplicationRepository _appRepository = ApplicationRepository();
-  final ProfileRepository _profileRepo = ProfileRepository();
-  final CommonRepository _commonRepo = CommonRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
+  final CommonRepository _commonRepository = CommonRepository();
 
   String? _applicationStatus;
   bool _isLoading = true;
@@ -34,12 +35,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> _checkInitialStatus() async {
-    final user = _commonRepo.getCurrentUser();
+    final user = _commonRepository.getCurrentUser();
     if (user == null) return;
 
     try {
       final results = await Future.wait([
-        _profileRepo.getStudentProfileModel(user.uid),
+        _profileRepository.getStudentProfileModel(user.uid),
         _appRepository.getApplicationStatusForPost(
             widget.model.postId, user.uid)
       ]);
@@ -57,7 +58,16 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> _handleApply() async {
-    if (_studentModel == null) return;
+    if (_studentModel == null) {
+      if (mounted) {
+        AwesomeSnackBar.show(context,
+            title: 'Hata',
+            message:
+                'Öğrenci profiliniz bulunamadı. Lütfen profilinizi tamamlayın.',
+            contentType: ContentType.warning);
+      }
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -79,6 +89,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       );
 
       await _appRepository.applyToPost(application);
+      await _appRepository.calculateAndSaveAIScore(
+          application, widget.model, _studentModel!);
 
       setState(() {
         _applicationStatus = "Başvuruldu";

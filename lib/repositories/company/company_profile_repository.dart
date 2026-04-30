@@ -3,7 +3,7 @@ import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/company_profile_model.dart';
 
-class ProfileRepository {
+class CompanyProfileRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<DocumentSnapshot?> getCompanyProfile(String companyId) async {

@@ -30,7 +30,6 @@ class _CompanyPostDetailsPageState extends State<CompanyPostDetailsPage> {
       ),
       body: Column(
         children: [
-          // ÜST KISIM: İLAN ÖZETİ
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -80,10 +79,7 @@ class _CompanyPostDetailsPageState extends State<CompanyPostDetailsPage> {
               ],
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // ALT KISIM: BAŞVURANLAR LİSTESİ
           Expanded(
             child: StreamBuilder<List<ApplicationModel>>(
               stream:

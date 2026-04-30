@@ -8,7 +8,7 @@ import 'package:staj_bul_demo/models/experience_model.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
 
-class ProfileRepository {
+class StudentProfileRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CommonRepository _commonRepository = CommonRepository();
@@ -236,7 +236,6 @@ class ProfileRepository {
       await ref.putFile(file);
       final String downloadUrl = await ref.getDownloadURL();
 
-      // UI'da (isim, tarih vs.) göstermek için oluşturduğumuz obje
       final resumeData = {
         'name': resumeName,
         'url': downloadUrl,
@@ -248,9 +247,8 @@ class ProfileRepository {
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        FirestoreStudentFields.cvUrl:
-            downloadUrl, // Senin modelin her yerden buna ulaşacak
-        'resumeData': resumeData // ResumeTab sayfasının kullanacağı detaylar
+        FirestoreStudentFields.cvUrl: downloadUrl,
+        'resumeData': resumeData
       });
     } catch (e, stackTrace) {
       LogService.error(
@@ -258,21 +256,19 @@ class ProfileRepository {
     }
   }
 
-  // Artık sadece storagePath ve userId alması yeterli
   Future<void> deleteResume(String storagePath, String userId) async {
     LogService.info('Deleting resume');
     try {
       if (storagePath.isNotEmpty) {
-        await _storage.ref(storagePath).delete(); // Storage'dan siliyoruz
+        await _storage.ref(storagePath).delete();
       }
 
       await _firestore
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        FirestoreStudentFields.cvUrl:
-            FieldValue.delete(), // cvUrl alanını tamamen yok et
-        'resumeData': FieldValue.delete() // Detay objesini tamamen yok et
+        FirestoreStudentFields.cvUrl: FieldValue.delete(),
+        'resumeData': FieldValue.delete()
       });
     } catch (e, stackTrace) {
       LogService.error('An error occured when deleting resume', e, stackTrace);

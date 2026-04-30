@@ -6,7 +6,7 @@ import 'package:staj_bul_demo/screens/authentication/reset_password.dart';
 import 'package:staj_bul_demo/screens/authentication/register.dart';
 import 'package:staj_bul_demo/screens/company_screens/company_menu.dart';
 import 'package:staj_bul_demo/screens/student_screens/student_menu.dart';
-import 'package:staj_bul_demo/services/auth.dart';
+import 'package:staj_bul_demo/core/services/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {

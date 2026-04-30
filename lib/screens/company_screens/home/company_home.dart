@@ -6,7 +6,7 @@ import 'package:staj_bul_demo/models/post_model.dart';
 import 'package:staj_bul_demo/repositories/common/application_repository.dart';
 import 'package:staj_bul_demo/repositories/common/post_repository.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
-import 'package:staj_bul_demo/repositories/company/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/company/company_profile_repository.dart';
 import 'package:staj_bul_demo/screens/company_screens/home/application_detail.dart';
 import 'package:staj_bul_demo/screens/company_screens/posts/add_edit_post_page.dart';
 
@@ -19,7 +19,8 @@ class CompanyHomePage extends StatefulWidget {
 
 class _CompanyHomePageState extends State<CompanyHomePage> {
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final CompanyProfileRepository _profileRepository =
+      CompanyProfileRepository();
   final PostRepository _postRepository = PostRepository();
   final ApplicationRepository _appRepository = ApplicationRepository();
 

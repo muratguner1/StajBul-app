@@ -4,7 +4,7 @@ import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_row.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_text_field.dart';
 import 'package:staj_bul_demo/models/user_model.dart';
 import 'package:staj_bul_demo/repositories/student/common_repository.dart';
-import 'package:staj_bul_demo/repositories/student/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/student/student_profile_repository.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
 
 class ContactTab extends StatefulWidget {
@@ -18,7 +18,8 @@ class _ContactTabState extends State<ContactTab>
     with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final StudentProfileRepository _profileRepository =
+      StudentProfileRepository();
   UserModel? _userModel;
 
   final TextEditingController _emailController = TextEditingController();

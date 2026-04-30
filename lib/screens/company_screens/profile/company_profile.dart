@@ -4,7 +4,7 @@ import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_info_row.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_section_card.dart';
 import 'package:staj_bul_demo/models/company_profile_model.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
-import 'package:staj_bul_demo/repositories/company/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/company/company_profile_repository.dart';
 import 'package:staj_bul_demo/screens/company_screens/profile/company_settings.dart';
 import 'package:staj_bul_demo/screens/company_screens/profile/edit_company_profile.dart';
 import 'package:staj_bul_demo/core/widgets/custom_widgets/awesome_snack_bar.dart';
@@ -20,7 +20,8 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
   bool isLoading = false;
 
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final CompanyProfileRepository _profileRepository =
+      CompanyProfileRepository();
 
   CompanyProfileModel? _profileModel;
 

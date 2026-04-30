@@ -4,6 +4,7 @@ import 'package:staj_bul_demo/core/constants/common.dart';
 class StudentProfileModel {
   final String uid;
   final String fullName;
+  final String? email;
   final String? university;
   final String? department;
   final String? studentClass;
@@ -19,6 +20,7 @@ class StudentProfileModel {
   StudentProfileModel({
     required this.uid,
     required this.fullName,
+    this.email,
     this.university,
     this.department,
     this.studentClass,
@@ -35,6 +37,7 @@ class StudentProfileModel {
   StudentProfileModel copyWith({
     String? uid,
     String? fullName,
+    String? email,
     String? university,
     String? department,
     String? studentClass,
@@ -50,6 +53,7 @@ class StudentProfileModel {
     return StudentProfileModel(
       uid: uid ?? this.uid,
       fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
       university: university ?? this.university,
       department: department ?? this.department,
       studentClass: studentClass ?? this.studentClass,
@@ -69,6 +73,7 @@ class StudentProfileModel {
     return StudentProfileModel(
       uid: snap.id,
       fullName: data[FirestoreStudentFields.fullName] ?? '',
+      email: data[FirestoreStudentFields.email] ?? '',
       university: data[FirestoreStudentFields.university] ?? '',
       department: data[FirestoreStudentFields.department] ?? '',
       studentClass: data[FirestoreStudentFields.studentClass] ?? '',
@@ -88,6 +93,7 @@ class StudentProfileModel {
   Map<String, dynamic> toJson() {
     return {
       FirestoreStudentFields.fullName: fullName,
+      FirestoreStudentFields.email: email,
       FirestoreStudentFields.university: university,
       FirestoreStudentFields.department: department,
       FirestoreStudentFields.studentClass: studentClass,

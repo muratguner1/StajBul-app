@@ -7,7 +7,7 @@ import 'package:staj_bul_demo/core/widgets/custom_widgets/custom_text_field.dart
 import 'package:staj_bul_demo/models/post_model.dart';
 import 'package:staj_bul_demo/repositories/company/common_repository.dart';
 import 'package:staj_bul_demo/repositories/common/post_repository.dart';
-import 'package:staj_bul_demo/repositories/company/profile_repository.dart';
+import 'package:staj_bul_demo/repositories/company/company_profile_repository.dart';
 
 class AddEditPostPage extends StatefulWidget {
   final PostModel? model;
@@ -22,7 +22,8 @@ class _AddEditPostPageState extends State<AddEditPostPage> {
   final _formKey = GlobalKey<FormState>();
   final PostRepository _postRepository = PostRepository();
   final CommonRepository _commonRepository = CommonRepository();
-  final ProfileRepository _profileRepository = ProfileRepository();
+  final CompanyProfileRepository _profileRepository =
+      CompanyProfileRepository();
 
   bool isLoading = false;
 
