@@ -133,22 +133,6 @@ class _StudentApplicationsPageState extends State<StudentApplicationsPage> {
                           ),
                         ],
                       ),
-                      if (app.matchScore != null && app.matchScore! > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'AI Uyumu: %${(app.matchScore! * 100).toInt()}',
-                            style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
                     ],
                   ),
                 ],

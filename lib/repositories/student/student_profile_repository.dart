@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
+import 'package:staj_bul_demo/core/services/cv_parsing_service.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/models/experience_model.dart';
 import 'package:staj_bul_demo/models/student_profile_model.dart';
@@ -235,6 +236,7 @@ class StudentProfileRepository {
 
       await ref.putFile(file);
       final String downloadUrl = await ref.getDownloadURL();
+      String extractedText = await CVParsingService.extractTextFromPDF(file);
 
       final resumeData = {
         'name': resumeName,
@@ -248,7 +250,8 @@ class StudentProfileRepository {
           .doc(userId)
           .update({
         FirestoreStudentFields.cvUrl: downloadUrl,
-        'resumeData': resumeData
+        FirestoreStudentFields.resumeData: resumeData,
+        FirestoreStudentFields.cvText: extractedText,
       });
     } catch (e, stackTrace) {
       LogService.error(
@@ -267,8 +270,9 @@ class StudentProfileRepository {
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        FirestoreStudentFields.cvUrl: FieldValue.delete(),
-        'resumeData': FieldValue.delete()
+        FirestoreStudentFields.cvUrl: null,
+        FirestoreStudentFields.resumeData: null,
+        FirestoreStudentFields.cvText: null,
       });
     } catch (e, stackTrace) {
       LogService.error('An error occured when deleting resume', e, stackTrace);
@@ -283,8 +287,8 @@ class StudentProfileRepository {
           .collection(FirestoreCollections.studentProfiles)
           .doc(userId)
           .update({
-        'skills': skills,
-        'languages': languages,
+        FirestoreStudentFields.skills: skills,
+        FirestoreStudentFields.languages: languages,
       });
     } catch (e, stackTrace) {
       LogService.error('An error occured when updating skills!', e, stackTrace);

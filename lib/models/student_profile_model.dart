@@ -14,6 +14,7 @@ class StudentProfileModel {
   final String? aboutMe;
   final List<String>? skills;
   final String? cvUrl;
+  final String? cvText;
   final bool? isProfileComplete;
   final List<String>? savedPostIds;
 
@@ -30,6 +31,7 @@ class StudentProfileModel {
     this.aboutMe,
     this.skills,
     this.cvUrl,
+    this.cvText,
     this.isProfileComplete,
     this.savedPostIds,
   });
@@ -47,6 +49,7 @@ class StudentProfileModel {
     String? aboutMe,
     List<String>? skills,
     String? cvUrl,
+    String? cvText,
     bool? isProfileComplete,
     List<String>? savedPostIds,
   }) {
@@ -63,6 +66,7 @@ class StudentProfileModel {
       aboutMe: aboutMe ?? this.aboutMe,
       skills: skills ?? this.skills,
       cvUrl: cvUrl ?? this.cvUrl,
+      cvText: cvText ?? this.cvText,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
       savedPostIds: savedPostIds ?? this.savedPostIds,
     );
@@ -83,6 +87,7 @@ class StudentProfileModel {
       aboutMe: data[FirestoreStudentFields.aboutMe],
       skills: List<String>.from(data[FirestoreStudentFields.skills] ?? []),
       cvUrl: data[FirestoreStudentFields.cvUrl],
+      cvText: data[FirestoreStudentFields.cvText],
       isProfileComplete:
           data[FirestoreStudentFields.isProfileComplete] ?? false,
       savedPostIds:
@@ -103,6 +108,7 @@ class StudentProfileModel {
       FirestoreStudentFields.aboutMe: aboutMe,
       FirestoreStudentFields.skills: skills,
       FirestoreStudentFields.cvUrl: cvUrl,
+      FirestoreStudentFields.cvText: cvText,
       FirestoreStudentFields.isProfileComplete: isProfileComplete,
       FirestoreStudentFields.savedPostIds: savedPostIds,
     };
