@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 Widget buildSearchBar({
   required Function(String) onChanged,
   required VoidCallback onFilterTap,
+  bool hasActiveFilters = false,
 }) {
   return Row(
     children: [
@@ -31,12 +32,30 @@ Widget buildSearchBar({
           height: 48,
           width: 48,
           decoration: BoxDecoration(
-            color: const Color(0xFF2E3A59),
+            color: hasActiveFilters ? Colors.blueAccent : const Color(0xFF2E3A59),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.filter_list,
-            color: Colors.white,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const Icon(
+                Icons.filter_list,
+                color: Colors.white,
+              ),
+              if (hasActiveFilters)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
