@@ -7,15 +7,22 @@ class MailService {
   final String _username = dotenv.env['GMAIL'] ?? '';
   final String _password = dotenv.env['APP_PASSWORD'] ?? '';
 
-  Future<void> sendStatusMail({
+  Future<bool> sendStatusMail({
     required String toEmail,
     required String studentName,
     required String companyName,
     required String status,
   }) async {
+    if (toEmail.trim().isEmpty || !toEmail.contains('@')) {
+      LogService.error(
+          'The student does not have a valid email address', null, null);
+      return false;
+    }
+
     if (_username.isEmpty || _password.isEmpty) {
-      LogService.error('Mail bilgileri .env dosyasında eksik!', null, null);
-      return;
+      LogService.error(
+          'Email information is missing from the .env file!', null, null);
+      return false;
     }
 
     final smtpServer = gmail(_username, _password);
@@ -45,8 +52,6 @@ class MailService {
           <p style="font-size: 14px; color: #777; text-align: center;">Kariyer yolculuğunuzda başarılar dileriz,<br><strong>StajBul Ekibi</strong></p>
         </div>
       ''';
-    } else {
-      return;
     }
 
     final message = Message()
@@ -56,11 +61,13 @@ class MailService {
       ..html = htmlBody;
 
     try {
-      LogService.info('Mail gönderimi başlatıldı: $toEmail');
+      LogService.info('Email sending has been initiated: $toEmail');
       await send(message, smtpServer);
-      LogService.info('Mail başarıyla iletildi: $status');
+      LogService.info('Email delivered successfully: $status');
+      return true;
     } catch (e, stackTrace) {
-      LogService.error('Mail gönderilemedi', e, stackTrace);
+      LogService.error('Email could not be sent!', e, stackTrace);
+      return false;
     }
   }
 }

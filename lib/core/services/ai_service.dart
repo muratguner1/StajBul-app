@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
-import 'package:staj_bul_demo/models/post_model.dart';
-import 'package:staj_bul_demo/models/student_profile_model.dart';
+import 'package:staj_bul_demo/data/models/post_model.dart';
+import 'package:staj_bul_demo/data/models/student_profile_model.dart';
 
 class AIService {
   Future<Map<String, dynamic>> getMatchAnalysis({
@@ -18,7 +18,7 @@ class AIService {
     Sen bir İK uzmanısın. İlan ile öğrenciyi karşılaştırıp 0.0 ile 1.0 arası puan ver.
     
     İlan Nitelikleri: ${post.qualifications}
-    Öğrenci hakkında: ${student.aboutMe}
+    Öğrenci özgeçmişi(cv): ${student.cvText ?? 'CV içeriği bulunamadı.'}
     Öğrenci Yetenekleri: ${student.skills?.join(', ')}
     
     LÜTFEN SADECE AŞAĞIDAKİ JSON FORMATINDA YANIT VER (başka hiçbir kelime veya markdown ekleme):

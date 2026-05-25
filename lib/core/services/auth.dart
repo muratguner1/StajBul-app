@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
-import 'package:staj_bul_demo/models/company_profile_model.dart';
-import 'package:staj_bul_demo/models/student_profile_model.dart';
-import 'package:staj_bul_demo/models/user_model.dart';
+import 'package:staj_bul_demo/data/models/company_profile_model.dart';
+import 'package:staj_bul_demo/data/models/student_profile_model.dart';
+import 'package:staj_bul_demo/data/models/user_model.dart';
 import 'package:staj_bul_demo/core/constants/common.dart';
 import 'package:staj_bul_demo/core/constants/user_roles.dart';
 

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:staj_bul_demo/core/services/log_service.dart';
 import 'package:staj_bul_demo/firebase_options.dart';
-import 'package:staj_bul_demo/models/user_model.dart';
-import 'package:staj_bul_demo/providers/theme_provider.dart';
-import 'package:staj_bul_demo/screens/splash_screen.dart';
+import 'package:staj_bul_demo/data/models/user_model.dart';
+import 'package:staj_bul_demo/presentation/providers/theme_provider.dart';
+import 'package:staj_bul_demo/presentation/screens/splash_screen.dart';
 import 'package:staj_bul_demo/core/services/auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

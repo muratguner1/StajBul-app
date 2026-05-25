@@ -20,7 +20,10 @@ class FirestoreStudentFields {
   static const String profileImageUrl = 'profileImageUrl';
   static const String aboutMe = 'about';
   static const String skills = 'skills';
+  static const String languages = 'languages';
   static const String cvUrl = 'cvUrl';
+  static const String cvText = 'cvText';
+  static const String resumeData = 'resumeData';
   static const String isProfileComplete = 'isProfileComplete';
   static const String savedPostIds = 'savedPostIds';
 }
