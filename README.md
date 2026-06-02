@@ -89,7 +89,7 @@ Projeyi yerel bilgisayarınızda çalıştırmak için aşağıdaki adımları t
 
 ### 2. Projeyi Klonlayın ve Bağımlılıkları Yükleyin
 ```bash
-git clone <proje-repo-adresi>
+git clone github.com/muratguner1/StajBul-app
 cd staj_bul_demo
 flutter pub get
 ```
@@ -184,7 +184,7 @@ Follow these steps to run the project on your local machine:
 
 ### 2. Clone the Project & Get Dependencies
 ```bash
-git clone <project-repo-url>
+git clone github.com/muratguner1/StajBul-app
 cd staj_bul_demo
 flutter pub get
 ```
